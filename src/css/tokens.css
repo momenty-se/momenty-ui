@@ -1,0 +1,196 @@
+/* Tokenkontraktet — @momenty/ui
+ *
+ * Den enda filen i paketet som innehåller färgvärden, och de är momenty-flows.
+ * Flow är facit: den designen är mest genomarbetad, och en app som kopplar in
+ * paketet utan att säga någonting ska därför få Momentys utseende — inte ett
+ * neutralt utseende den sedan måste bygga bort. Vill en app avvika skriver den
+ * en brofil som definierar om det den vill ha annorlunda; se docs/TOKENS.md.
+ *
+ * Värdena är avskrivna ur momenty-flows `src/app/globals.css`, inte omtolkade.
+ * Ändras en färg där ska den ändras här — inte tvärtom. Motiveringarna till
+ * varför en färg är vad den är står kvar i Flow, som äger besluten.
+ *
+ * NAMNEN ÄR ROLLER, INTE PLATSER I EN SKALA. `--mo-bg-raised` säger vad ytan
+ * gör — den lyfter något ur bakgrunden — medan `--surface-2` bara säger var i
+ * en numrerad räcka den ligger. Skalnamn tvingar varje ny app att gissa vilket
+ * nummer som betyder "kort", och gissningarna blir olika.
+ *
+ * PREFIXET ÄR `--mo-` PÅ ALLT. Både momenty-flow (178 egna variabler) och
+ * control-room (72) har fullständiga namnrymder sedan tidigare, och tre namn
+ * förekommer redan i båda med olika betydelse — `--accent` är jade i den ena
+ * och nästan svart i den andra, dessutom i oförenliga format. Ett eget prefix
+ * gör att paketet aldrig kan råka ärva ett värde som betyder något annat.
+ */
+
+:root {
+  /* ── Ytor ───────────────────────────────────────────────────────────
+     Fem nivåer, uppifrån och ner i hur mycket de sticker ut från grunden.
+     `inset` är den enda som går nedåt: fält man skriver i. */
+  --mo-bg: #faf8f5; /* flow-paper */
+  --mo-bg-subtle: #f3efe4; /* flow-cream */
+  --mo-bg-raised: #ffffff;
+  --mo-bg-overlay: #ffffff;
+  --mo-bg-inset: rgba(255, 255, 255, 0.88); /* flow-glass-input */
+
+  /* ── Text ───────────────────────────────────────────────────────────
+     Tre vikter av uppmärksamhet, plus texten som ligger ovanpå accenten.
+     `on-accent` är mörk och inte vit: jade ligger för ljust för vit text. */
+  --mo-text: #181410; /* flow-ink */
+  --mo-text-muted: #5a5040; /* flow-tx2 */
+  --mo-text-faint: #7a7064; /* flow-mute */
+  --mo-text-on-accent: #08221b; /* flow-on-accent */
+
+  /* ── Linjer ─────────────────────────────────────────────────────────── */
+  --mo-line: #e5dfd3; /* flow-rule */
+  --mo-line-strong: #d4cdb9; /* flow-rule-2 */
+
+  /* ── Accent ─────────────────────────────────────────────────────────── */
+  --mo-accent: #00c9a0; /* flow-jade */
+  --mo-accent-hover: #00b48a;
+  --mo-accent-subtle: rgba(0, 201, 160, 0.1); /* flow-accent-bg */
+
+  /* ── Status ─────────────────────────────────────────────────────────
+     Semantik, skild från accenten: en app som byter accentfärg ska inte
+     råka byta betydelsen av "klart".
+
+     ETT FEL ÄR GULT, INTE RÖTT. Rött bär bara det som inte går att ångra.
+     Ett fält som inte är ifyllt rätt är en fråga, och en knapp som säger
+     "Bokför ändå" får inte se ut som "Radera". Regeln är Flows och är
+     inbakad i field.css, som validerar med `--mo-warn`. */
+  --mo-good: #00705a; /* flow-jade-dark */
+  --mo-good-subtle: #c9f2e7; /* flow-jade-tint */
+  --mo-good-text: #00705a;
+
+  --mo-warn: #d48e00; /* flow-amber */
+  --mo-warn-subtle: rgba(212, 142, 0, 0.1);
+  --mo-warn-text: #8c6e31;
+
+  --mo-bad: #b8302a; /* flow-error */
+  --mo-bad-subtle: rgba(184, 48, 42, 0.1);
+  --mo-bad-text: #b8302a;
+  --mo-text-on-bad: #ffffff;
+
+  /* ── Glas ───────────────────────────────────────────────────────────
+     Flows fyllning, kant och blur. En app utan glas sätter `--mo-glass-blur`
+     till `none` och pekar bg och line på sina matta ytor. */
+  --mo-glass-bg: rgba(255, 255, 255, 0.88);
+  --mo-glass-line: #d4cdb9; /* flow-glass-kant = flow-rule-2 */
+  --mo-glass-hover: rgba(255, 255, 255, 0.97);
+  --mo-glass-blur: blur(24px) saturate(1.2);
+
+  /* ── Form ───────────────────────────────────────────────────────────
+     `--mo-control-h` är ett GOLV för allt man trycker på, satt efter WCAG 2.2
+     (Target Size, AA) och Flows egen §04. Höj det gärna. Sänk det aldrig. */
+  --mo-control-h: 44px; /* flow-btn-h, flow-field-h */
+  --mo-radius-sm: 4px;
+  --mo-radius-md: 10px; /* flow-r-field */
+  --mo-radius-lg: 14px;
+  --mo-radius-pill: 999px;
+
+  /* ── Typografi ──────────────────────────────────────────────────────
+     Paketet sätter aldrig en font-family på en komponent — allt ärver från
+     appen. De här finns för de få ställen där arvet måste brytas. */
+  --mo-font-sans: inherit;
+  --mo-font-serif: inherit;
+  --mo-font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* ── Rörelse ────────────────────────────────────────────────────────── */
+  --mo-motion-fast: 250ms; /* flow-t-hover */
+  --mo-motion-base: 400ms;
+
+  /* ── Fokus ──────────────────────────────────────────────────────────
+     Jade mörk, inte accenten: turkos ligger på 2,01:1 mot papper och syns
+     inte som en kant. Flows mätning, Flows beslut. */
+  --mo-focus-ring: #00705a; /* flow-jade-dark */
+
+  /* ── Skuggor ────────────────────────────────────────────────────────── */
+  --mo-shadow-sm: 0 18px 40px -24px rgba(80, 60, 20, 0.16); /* flow-shadow-soft */
+  --mo-shadow-md: 0 30px 60px -30px rgba(80, 60, 20, 0.18); /* flow-shadow-card */
+}
+
+/* Mörkt läge — Flows egna mörka värden.
+ *
+ * Tre lägen måste täckas: den som aldrig valt (`prefers-color-scheme`), och
+ * den som valt (`.dark` respektive `[data-theme="dark"]`). Både Flow och
+ * control-room kör Tailwinds `darkMode: "class"`, alltså `.dark` på <html>;
+ * attributformen finns med för appar som gör tvärtom. */
+@media (prefers-color-scheme: dark) {
+  :root:not(.light):not([data-theme="light"]) {
+    --mo-bg: #141210; /* flow-paper mörk */
+    --mo-bg-subtle: #1b1815; /* flow-cream mörk */
+    --mo-bg-raised: #1b1815;
+    --mo-bg-overlay: #221f1b;
+    --mo-bg-inset: rgba(255, 255, 255, 0.15); /* flow-glass-input mörk */
+
+    --mo-text: #f2efe8; /* flow-ink mörk */
+    --mo-text-muted: #cdc4b4; /* flow-tx2 mörk */
+    --mo-text-faint: #a79d8e; /* flow-mute mörk */
+
+    --mo-line: rgba(242, 239, 232, 0.1);
+    --mo-line-strong: rgba(242, 239, 232, 0.16);
+
+    --mo-accent-subtle: rgba(0, 201, 160, 0.14);
+
+    --mo-good: #4bd6a4; /* flow-jade-dark mörk */
+    --mo-good-subtle: rgba(0, 201, 160, 0.15);
+    --mo-good-text: #4bd6a4;
+
+    --mo-warn: #e2b877; /* flow-amber mörk */
+    --mo-warn-subtle: rgba(226, 184, 119, 0.12);
+    --mo-warn-text: #e2b877;
+
+    --mo-bad: #ff6b5f; /* flow-error mörk */
+    --mo-bad-subtle: rgba(255, 107, 95, 0.14);
+    --mo-bad-text: #ff6b5f;
+    --mo-text-on-bad: #2a1210;
+
+    --mo-glass-bg: rgba(255, 255, 255, 0.15);
+    --mo-glass-line: rgba(255, 255, 255, 0.22); /* flow-glass-input-line mörk */
+    --mo-glass-hover: rgba(255, 255, 255, 0.26);
+
+    --mo-focus-ring: #4bd6a4;
+
+    --mo-shadow-sm: 0 18px 40px -24px rgba(0, 0, 0, 0.6);
+    --mo-shadow-md: 0 30px 70px -34px rgba(0, 0, 0, 0.8);
+  }
+}
+
+.dark,
+[data-theme="dark"] {
+  --mo-bg: #141210;
+  --mo-bg-subtle: #1b1815;
+  --mo-bg-raised: #1b1815;
+  --mo-bg-overlay: #221f1b;
+  --mo-bg-inset: rgba(255, 255, 255, 0.15);
+
+  --mo-text: #f2efe8;
+  --mo-text-muted: #cdc4b4;
+  --mo-text-faint: #a79d8e;
+
+  --mo-line: rgba(242, 239, 232, 0.1);
+  --mo-line-strong: rgba(242, 239, 232, 0.16);
+
+  --mo-accent-subtle: rgba(0, 201, 160, 0.14);
+
+  --mo-good: #4bd6a4;
+  --mo-good-subtle: rgba(0, 201, 160, 0.15);
+  --mo-good-text: #4bd6a4;
+
+  --mo-warn: #e2b877;
+  --mo-warn-subtle: rgba(226, 184, 119, 0.12);
+  --mo-warn-text: #e2b877;
+
+  --mo-bad: #ff6b5f;
+  --mo-bad-subtle: rgba(255, 107, 95, 0.14);
+  --mo-bad-text: #ff6b5f;
+  --mo-text-on-bad: #2a1210;
+
+  --mo-glass-bg: rgba(255, 255, 255, 0.15);
+  --mo-glass-line: rgba(255, 255, 255, 0.22);
+  --mo-glass-hover: rgba(255, 255, 255, 0.26);
+
+  --mo-focus-ring: #4bd6a4;
+
+  --mo-shadow-sm: 0 18px 40px -24px rgba(0, 0, 0, 0.6);
+  --mo-shadow-md: 0 30px 70px -34px rgba(0, 0, 0, 0.8);
+}

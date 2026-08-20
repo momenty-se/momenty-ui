@@ -1,0 +1,274 @@
+/* Fältet — @momenty/ui
+ *
+ * Härstammar ur momenty-flows `src/styles/flow/field.css`, generaliserad till
+ * kontraktets `--mo-*`. Samma laddningsordning gäller som för knappen: efter
+ * `@tailwind utilities`. Se css/button.css.
+ *
+ * TVÅ ROLLER MED VAR SIN FORM.
+ *
+ *   .mo-field är ett fält MED något bredvid — en skickknapp, en rensknapp,
+ *   ett förstoringsglas. Den anatomin är kommandots: sökfältet, promptraden,
+ *   chattraden. Piller, och höjden kommer från knappen den står bredvid.
+ *
+ *   .mo-input är fältet ensamt i ett formulär. Mjuk rektangel, står i kolumn
+ *   med andra fält. Ett formulär av piller blir en rad kapslar.
+ *
+ * Undantagen går åt båda håll och är utskrivna: `.mo-field--plain` för ett
+ * formulärfält med prefix eller enhet inuti sig, `.mo-input--pill` för ett
+ * fristående fält som ÄR sitt eget kommando.
+ */
+
+@layer mo.floor {
+  .mo-field,
+  .mo-input {
+    min-height: var(--mo-control-h);
+  }
+}
+
+.mo-field,
+.mo-input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  /* Radien sätts per roll längre ned, inte här. */
+  /* INGEN width här. Bredd är läge, inte identitet, och ägs av anropsstället —
+     ett fält i en filterrad står på w-32 och ett `width: 100%` här hade vunnit
+     över det tyst, eftersom filen laddas efter Tailwinds utilities. Full bredd
+     begärs med fullWidth eller w-full. */
+  min-height: var(--mo-control-h);
+  padding: 0 16px;
+  box-sizing: border-box;
+  /* Samma gräns som sekundärknappen — ett fält och en knapp är samma yta med
+     olika innehåll. */
+  border: 1px solid var(--mo-glass-line);
+  background: var(--mo-bg-inset);
+  color: var(--mo-text);
+  backdrop-filter: var(--mo-glass-blur);
+  -webkit-backdrop-filter: var(--mo-glass-blur);
+  transition:
+    border-color var(--mo-motion-fast) ease,
+    box-shadow var(--mo-motion-fast) ease;
+}
+
+/* 5 px runt om, 22 px in till texten. Paddingen är inte kosmetisk: den ÄR
+   luften mellan kanten och den runda knappen inuti, och utan den klistrar
+   knappen mot kanten. Höjden blir 44 + 5 + 5 + 2 = 56 px och behöver därför
+   inte sättas — den faller ut ur innehållet. Golvet ligger kvar för fält utan
+   knapp inuti, som då står på 44 px. */
+.mo-field {
+  min-height: var(--mo-control-h);
+  border-radius: var(--mo-radius-pill);
+  padding: 5px 22px;
+}
+
+/* Bär fältet en knapp sitter den i högerkanten, och då är 22 px för mycket
+   luft mellan text och knapp — 5 px räcker, samma som över och under. */
+.mo-field:has(> button),
+.mo-field:has(> .mo-btn) {
+  padding-right: 5px;
+}
+
+/* Den runda kontrollen inuti ett kommandofält. Klassen sätts på knappen i
+   stället för att ärvas av varje barn, eftersom ett sökfält lika gärna kan
+   bära en textknapp eller en naken ikon utan egen yta. Måttet är knappens
+   eget, inte ett mindre. */
+.mo-field-button {
+  flex: none;
+  width: var(--mo-control-h);
+  min-width: var(--mo-control-h);
+  height: var(--mo-control-h);
+  min-height: var(--mo-control-h);
+  padding: 0;
+}
+
+.mo-input {
+  border-radius: var(--mo-radius-md);
+}
+
+.mo-field--plain {
+  min-height: var(--mo-control-h);
+  border-radius: var(--mo-radius-md);
+  padding: 0 16px;
+}
+
+.mo-input--pill {
+  border-radius: var(--mo-radius-pill);
+  padding: 0 22px;
+}
+
+/* BREDDEN ÄR ETT GOLV, INTE ETT MÅTT — samma mekanism som höjden. Ett piller
+   som ÄR sitt eget kommando står alltid ensamt i en kolumn med sin knapp
+   under sig, och ska då vara exakt lika brett som knappen. Utan detta faller
+   fältet tillbaka på webbläsarens size-attribut, omkring tjugo tecken.
+
+   Lagret gör att ett anropsställe fortfarande kan bestämma något annat:
+   Tailwinds utilities är olagrade och vinner över allt i mo.floor. */
+@layer mo.floor {
+  .mo-input--pill {
+    width: 100%;
+  }
+}
+
+/* NOLLSTÄLLNINGEN GÄLLER BARA DE NAKNA BARNEN inuti .mo-field, aldrig
+   .mo-input självt. .mo-input ÄR fältet — den bär kanten och fyllningen från
+   regeln ovan, och stod den med här skulle den ta bort dem igen två rader
+   senare. */
+.mo-field > input,
+.mo-field > textarea,
+.mo-field > select {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+}
+
+/* Texten är gemensam för fältet och för de nakna barnen. */
+.mo-input,
+.mo-textarea,
+.mo-field > input,
+.mo-field > textarea,
+.mo-field > select {
+  outline: none;
+  font-family: inherit;
+  /* 16 PX ÄR ETT GOLV, INTE ETT VAL. Under 16 px zoomar iOS Safari in när
+     fältet får fokus, och sidan kommer inte tillbaka av sig själv. Skalas ner
+     först vid 640 px, där tangentbordet inte längre delar skärm med
+     formuläret. */
+  font-size: 16px;
+  line-height: 1.4;
+  color: var(--mo-text);
+}
+
+@media (min-width: 640px) {
+  .mo-input,
+  .mo-textarea,
+  .mo-field > input,
+  .mo-field > textarea,
+  .mo-field > select {
+    font-size: 15px;
+  }
+}
+
+.mo-input::placeholder,
+.mo-textarea::placeholder,
+.mo-field > input::placeholder,
+.mo-field > textarea::placeholder {
+  color: var(--mo-text-faint);
+}
+
+/* --- Textytan ---------------------------------------------------------
+   Samma yta som fältet, men den växer nedåt och ska därför inte centrera sitt
+   innehåll.
+
+   RADIEN HAR ETT TAK PÅ 22 PX: ett flerradigt fält kan inte vara ett piller,
+   hur `--mo-radius-md` än sätts. Ingen width heller — bredd är läge, inte
+   identitet, och ägs av anropsstället. */
+.mo-textarea {
+  display: block;
+  min-height: 112px;
+  padding: 12px 16px;
+  box-sizing: border-box;
+  border: 1px solid var(--mo-glass-line);
+  border-radius: min(var(--mo-radius-md), 22px);
+  background: var(--mo-bg-inset);
+  color: var(--mo-text);
+  resize: vertical;
+  backdrop-filter: var(--mo-glass-blur);
+  -webkit-backdrop-filter: var(--mo-glass-blur);
+  transition:
+    border-color var(--mo-motion-fast) ease,
+    box-shadow var(--mo-motion-fast) ease;
+}
+
+/* --- Fokus ------------------------------------------------------------
+   Egen token, inte accenten: en ljus accent syns inte som kant mot ljus yta. */
+.mo-input:focus,
+.mo-textarea:focus,
+.mo-field:focus-within {
+  border-color: var(--mo-focus-ring);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--mo-focus-ring) 35%, transparent);
+}
+
+/* --- Fel är gult, aldrig rött -----------------------------------------
+   Rött bär bara det som inte går att ångra. Ett fält som inte är ifyllt rätt
+   är en fråga, inte en oåterkallelig handling. */
+.mo-field--invalid,
+.mo-input--invalid,
+.mo-textarea--invalid {
+  border-color: color-mix(in srgb, var(--mo-warn) 55%, transparent);
+}
+
+.mo-field--invalid:focus-within,
+.mo-input--invalid:focus,
+.mo-textarea--invalid:focus {
+  border-color: var(--mo-warn);
+  box-shadow: 0 0 0 3px var(--mo-warn-subtle);
+}
+
+.mo-field-error {
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--mo-warn-text);
+}
+
+/* --- Inaktiv och låst -------------------------------------------------
+   Dämpar fyllning och text var för sig. Linjen står kvar, precis som på
+   knappen. */
+.mo-field:has(> input:disabled),
+.mo-field:has(> select:disabled),
+.mo-input:disabled,
+.mo-textarea:disabled {
+  border-color: var(--mo-line);
+  color: var(--mo-text-faint);
+  cursor: not-allowed;
+}
+
+.mo-input:disabled,
+.mo-textarea:disabled,
+.mo-field > input:disabled,
+.mo-field > select:disabled {
+  color: var(--mo-text-faint);
+  cursor: not-allowed;
+}
+
+.mo-field--locked,
+.mo-input[readonly],
+.mo-textarea[readonly] {
+  background: var(--mo-bg-subtle);
+  border-color: var(--mo-line);
+  color: var(--mo-text-muted);
+}
+
+/* --- Beloppsfältet ----------------------------------------------------
+   Belopp är ALDRIG mono. De är sans med tabular-nums, så att de står i kolumn
+   utan att byta typsnitt mitt i en mening. */
+.mo-input--amount {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* --- Etikett och hjälptext --------------------------------------------- */
+.mo-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--mo-text-muted);
+}
+
+.mo-hint {
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--mo-text-faint);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mo-field,
+  .mo-input,
+  .mo-textarea {
+    transition: none;
+  }
+}

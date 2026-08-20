@@ -1,0 +1,62 @@
+/* Basen — @momenty/ui
+ *
+ * Samlingsfilen. Importera den här ENDA filen i appens rotlayout och du får
+ * kontraktet plus alla komponenters CSS i rätt inbördes ordning:
+ *
+ *   import "@momenty/ui/css/base.css";
+ *
+ * LADDA DEN EFTER `@tailwind utilities`. Ordningen är arkitektur, inte en
+ * detalj — se css/button.css för varför. Appar som vill styra ordningen själva
+ * importerar filerna var för sig i stället; `tokens.css` måste då komma först.
+ *
+ * Filen innehåller också de få hjälpklasser paketets komponenter behöver.
+ * De är medvetet få: paketet ska inte bli ett andra utility-bibliotek bredvid
+ * appens Tailwind, bara klara sig utan det.
+ */
+
+@import "./tokens.css";
+@import "./button.css";
+@import "./field.css";
+
+/* --- Hjälpklasser -----------------------------------------------------
+   Namngivna `mo-` av samma skäl som allt annat: en app kan ha en egen
+   `.w-full` med andra regler, och paketet får aldrig råka läsa den. */
+
+.mo-w-full {
+  width: 100%;
+}
+
+/* Fältgruppens staplade rader. Etikettens egen marginal nollställs, annars
+   räknas luften två gånger — en gång av gap och en gång av marginalen. */
+.mo-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mo-field-group > .mo-label {
+  margin-bottom: 0;
+}
+
+.mo-field-group > .mo-hint,
+.mo-field-group > .mo-field-error {
+  margin-top: 0;
+}
+
+/* Snurran i en laddande knapp. Egen animation i stället för Tailwinds
+   `animate-spin`, så att paketet fungerar i en app utan Tailwind. */
+@keyframes mo-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.mo-spin {
+  animation: mo-spin 0.9s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mo-spin {
+    animation-duration: 2.4s;
+  }
+}

@@ -1,0 +1,275 @@
+/* Knappen — @momenty/ui
+ *
+ * Härstammar ur momenty-flows `src/styles/flow/button.css`, generaliserad:
+ * `--flow-*` bytt mot kontraktets `--mo-*`, och de två Flow-egna undantagen
+ * (assistentknappen och mobilens runda flikknapp) borttagna. De hör hemma i
+ * appen — se "Egna undantag" längst ned.
+ *
+ * FYRA ROLLER, ETT MÅTT. Höjden är inte förhandlingsbar på anropsstället.
+ * Behövs något mindre är svaret ett piller eller en textlänk — egna roller
+ * med egna mått, inte en mindre knapp.
+ *
+ * LADDNINGSORDNINGEN ÄR ARKITEKTUR, INTE EN DETALJ. Importera den här filen
+ * EFTER `@tailwind utilities` i appens rotlayout. Då vinner `.mo-btn`s padding
+ * över ett inskickat `px-4 py-2` på källordning vid samma specificitet, och
+ * storlek går inte längre att smyga in via `className`. Layout fungerar
+ * fortfarande (`flex-1`, `w-full`, `mt-6`), eftersom knappen aldrig deklarerar
+ * margin, width eller flex och det därför inte finns någon konflikt att
+ * skiljedöma. Laddas filen FÖRE utilities gäller det omvända, och systemets
+ * enda knappstorlek blir ett förslag.
+ */
+
+/* --- Golvet -----------------------------------------------------------
+   Ett namngivet cascade layer förlorar mot allt olagrat OAVSETT specificitet.
+   Det är skillnaden mot @layer components, som bara förlorar vid LIKA
+   specificitet och därför går sönder den dag någon skriver en tvåklassig
+   selektor. Att golvet GÅR att höja är avsiktligt: höjden är ett golv, inte
+   ett mått. Det som inte får hända är att någon sänker den under
+   fingerspetsens mått. */
+@layer mo.floor {
+  .mo-btn {
+    min-height: var(--mo-control-h);
+  }
+}
+
+.mo-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: var(--mo-control-h);
+  padding: 11px 22px;
+  border: 1px solid transparent;
+  border-radius: var(--mo-radius-pill);
+  font-family: inherit;
+  font-size: 14px;
+  /* 500, inte 600. Halvfet text är ett undantag och ska begäras med en egen
+     token på anropsstället, inte ärvas av alla knappar. */
+  font-weight: var(--mo-btn-weight, 500);
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  appearance: none;
+  transition:
+    background var(--mo-motion-fast) ease,
+    color var(--mo-motion-fast) ease,
+    border-color var(--mo-motion-fast) ease;
+}
+
+.mo-btn--block {
+  width: 100%;
+}
+
+/* Fokusringen fanns inte i Flows original — knappen var tangentbordsosynlig
+   utom via webbläsarens egen ring, som försvinner så fort någon nollställer
+   outline. Den ligger här och inte per variant, så att den gäller alla. */
+.mo-btn:focus-visible,
+.mo-icon-btn:focus-visible {
+  outline: 2px solid var(--mo-focus-ring);
+  outline-offset: 2px;
+}
+
+/* --- Primär -----------------------------------------------------------
+   En per vy. Ingen skugga: accenten bär uppmärksamheten själv. */
+.mo-btn--primary {
+  background: var(--mo-accent);
+  border-color: var(--mo-accent);
+  color: var(--mo-text-on-accent);
+}
+
+.mo-btn--primary:hover:not(:disabled) {
+  background: var(--mo-accent-hover);
+  border-color: var(--mo-accent-hover);
+}
+
+/* --- Sekundär ---------------------------------------------------------
+   Ytan är glas, aldrig accentens fyllning. En app utan glas får en vanlig
+   upphöjd yta, eftersom `--mo-glass-*` faller tillbaka dit. */
+.mo-btn--secondary {
+  background: var(--mo-glass-bg);
+  border-color: var(--mo-glass-line);
+  color: var(--mo-text);
+  backdrop-filter: var(--mo-glass-blur);
+  -webkit-backdrop-filter: var(--mo-glass-blur);
+}
+
+.mo-btn--secondary:hover:not(:disabled) {
+  background: var(--mo-glass-hover);
+  border-color: var(--mo-line-strong);
+}
+
+/* --- Tyst -------------------------------------------------------------
+   "Avbryt". Smalare padding än de andra, eftersom den inte bär någon yta att
+   hålla isär från texten bredvid. */
+.mo-btn--quiet {
+  padding: 11px 14px;
+  background: none;
+  color: var(--mo-text-muted);
+}
+
+.mo-btn--quiet:hover:not(:disabled) {
+  background: var(--mo-glass-hover);
+  color: var(--mo-text);
+}
+
+/* --- Destruktiv -------------------------------------------------------
+   Rött bär BARA det som inte går att ångra. Ett fel är inte destruktivt — det
+   är gult, se `--warn` längst ned. Utlösaren är en tunn röd linje; först
+   bekräftelsen i dialogen är fylld. */
+.mo-btn--destructive {
+  padding: 11px 20px;
+  background: none;
+  border-color: color-mix(in srgb, var(--mo-bad) 30%, transparent);
+  color: var(--mo-bad);
+}
+
+.mo-btn--destructive:hover:not(:disabled) {
+  background: var(--mo-bad-subtle);
+}
+
+.mo-btn--destructive-solid {
+  padding: 11px 20px;
+  background: var(--mo-bad);
+  border-color: var(--mo-bad);
+  color: var(--mo-text-on-bad);
+}
+
+.mo-btn--destructive-solid:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--mo-bad) 88%, black);
+}
+
+/* --- Varning ----------------------------------------------------------
+   Gult, inte rött: "fortsätt ändå trots att något ser fel ut". Läggs ovanpå
+   .mo-btn--secondary, som ger ytan och blurren. */
+.mo-btn--warn {
+  background: var(--mo-warn-subtle);
+  border-color: color-mix(in srgb, var(--mo-warn) 18%, transparent);
+  color: var(--mo-warn-text);
+}
+
+.mo-btn--warn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--mo-warn) 18%, transparent);
+  border-color: var(--mo-warn);
+}
+
+.mo-btn--warn:disabled {
+  background: var(--mo-bg-subtle);
+  border-color: color-mix(in srgb, var(--mo-warn) 18%, transparent);
+  color: var(--mo-text-faint);
+}
+
+/* --- Inaktiv ----------------------------------------------------------
+   Dämpar fyllning och text var för sig. KANTEN LÄMNAS I FRED: ett generellt
+   `opacity: .5` bleker linjen till omkring 1,2:1 och tar bort just det som
+   gör sekundärknappen till en knapp. Linjen ska finnas i vila, vid hovring
+   OCH som inaktiv. */
+.mo-btn:disabled {
+  cursor: not-allowed;
+  color: var(--mo-text-faint);
+  box-shadow: none;
+}
+
+.mo-btn--primary:disabled {
+  background: color-mix(in srgb, var(--mo-accent) 38%, transparent);
+  border-color: transparent;
+  color: color-mix(in srgb, var(--mo-text-on-accent) 55%, transparent);
+}
+
+.mo-btn--secondary:disabled {
+  background: var(--mo-bg-subtle);
+  border-color: var(--mo-line);
+}
+
+.mo-btn--destructive:disabled {
+  border-color: color-mix(in srgb, var(--mo-bad) 18%, transparent);
+  color: color-mix(in srgb, var(--mo-bad) 55%, transparent);
+}
+
+.mo-btn--destructive-solid:disabled {
+  background: color-mix(in srgb, var(--mo-bad) 40%, transparent);
+  border-color: transparent;
+  color: var(--mo-text-on-bad);
+}
+
+/* --- Ikonknappen ------------------------------------------------------
+   Egen klass, inte en modifierare av .mo-btn: annars når den mindre rutan
+   även textknappen.
+
+   34 px på skrivbordet, 44 px på telefonen. Skillnaden är inte kosmetisk: en
+   pekare träffar 34 px utan besvär, en tumme gör det inte. På skrivbordet
+   hålls träffytan ändå på 44 px med ett osynligt ::after, eftersom WCAG 2.2
+   mäter ytan och inte ramen. */
+.mo-icon-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--mo-radius-pill);
+  background: none;
+  color: var(--mo-text-muted);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background var(--mo-motion-fast) ease,
+    color var(--mo-motion-fast) ease;
+}
+
+.mo-icon-btn::after {
+  content: "";
+  position: absolute;
+  inset: -5px;
+  border-radius: inherit;
+}
+
+@media (max-width: 639px) {
+  .mo-icon-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .mo-icon-btn::after {
+    inset: 0;
+  }
+}
+
+.mo-icon-btn:hover:not(:disabled) {
+  background: var(--mo-glass-hover);
+  color: var(--mo-text);
+}
+
+.mo-icon-btn--glass {
+  background: var(--mo-glass-bg);
+  border-color: var(--mo-glass-line);
+  color: var(--mo-text);
+  backdrop-filter: var(--mo-glass-blur);
+  -webkit-backdrop-filter: var(--mo-glass-blur);
+}
+
+.mo-icon-btn:disabled {
+  cursor: not-allowed;
+  color: var(--mo-text-faint);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mo-btn,
+  .mo-icon-btn {
+    transition: none;
+  }
+}
+
+/* --- Egna undantag ----------------------------------------------------
+   En app som behöver en knapp som bryter mot systemet skriver den i sin EGEN
+   CSS, inte här. Mönstret är att sätta om en token i stället för att skriva
+   en ny regel, så att undantaget syns i tokenlistan i stället för att gömma
+   sig i en variant:
+
+     .flow-btn--fraga  { --mo-btn-weight: 600; }
+     .flow-tabbar .mo-btn--round { --mo-control-h: 58px; width: 58px; padding: 0; }
+
+   Ett undantag som bara en app har hör hemma i den appen. Först när två appar
+   har skrivit samma undantag är det en kandidat för paketet. */

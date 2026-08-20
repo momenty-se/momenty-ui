@@ -1,0 +1,20 @@
+/**
+ * @momenty/ui — Momentys gemensamma komponentbibliotek.
+ *
+ * Paketet levererar FORMEN. Appen levererar FÄRGEN, genom att definiera om
+ * kontraktets `--mo-*`-variabler. Ingen komponentfil ska behöva skilja sig
+ * mellan två appar — behöver den det är det ett tecken på att en token
+ * saknas, inte på att komponenten behöver forkas.
+ *
+ * CSS:en importeras separat och laddas EFTER `@tailwind utilities`:
+ *
+ *   import "@momenty/ui/css/base.css";
+ *
+ * Se README.md för inkoppling och docs/TOKENS.md för namnsättningen.
+ */
+
+export { Button, type ButtonProps, type ButtonVariant } from "./components/Button";
+export { Field, type FieldProps } from "./components/Field";
+export { Icon, ikonStreck, IKON_ETIKETTER, IKON_GRUPPER, type IconNamn } from "./components/Icon";
+export { Input, type InputProps, type InputKind } from "./components/Input";
+export { Textarea, type TextareaProps } from "./components/Textarea";
