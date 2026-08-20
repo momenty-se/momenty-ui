@@ -33,8 +33,8 @@
  * Tokens och CSS-klasser är däremot engelska — de är en teknisk gränsyta som
  * varje app och Tailwind-konfig läser. Se docs/TOKENS.md.
  *
- * Facit är `flow-icons.js` i designprojektet (cb8e1a5f). Rita inte ett nytt
- * tecken här — saknas något är det designens beslut, inte kodens. En app som
+ * Facit är `flow-icons.js` i Momentys interna designprojekt. Rita inte ett
+ * nytt tecken här — saknas något är det designens beslut, inte kodens. En app som
  * behöver ett tecken bara den har ritar det i sin egen kodbas; först när två
  * appar ritat samma sak är det en kandidat för paketet.
  */

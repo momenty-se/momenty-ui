@@ -3,9 +3,10 @@
 Momentys gemensamma komponentbibliotek. **Paketet äger formen, appen äger
 färgen.**
 
-Komponenterna kommer från [momenty-flow](https://github.com/momenty-se/momenty-flow),
-som är facit för designen. Ändras en färg eller ett mått där ska det ändras
-här — inte tvärtom.
+Komponenterna kommer från `momenty-se/momenty-flow`, som är facit för
+designen. Ändras en färg eller ett mått där ska det ändras här — inte tvärtom.
+Det repot är privat, så länken hit är avsiktligt utskriven som namn i stället
+för som klickbar adress.
 
 ## Koppla in
 
