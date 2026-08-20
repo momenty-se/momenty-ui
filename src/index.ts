@@ -14,7 +14,13 @@
  */
 
 export { Button, type ButtonProps, type ButtonVariant } from "./components/Button";
+export { Combobox, type ComboboxProps } from "./components/Combobox";
+export { DateField, type DateFieldProps } from "./components/DateField";
+export { Dropdown, type DropdownProps } from "./components/Dropdown";
 export { Field, type FieldProps } from "./components/Field";
 export { Icon, ikonStreck, IKON_ETIKETTER, IKON_GRUPPER, type IconNamn } from "./components/Icon";
 export { Input, type InputProps, type InputKind } from "./components/Input";
+export { Menu, type MenuProps } from "./components/Menu";
+export { Popover, type PopoverProps } from "./components/Popover";
+export { Select, type SelectProps } from "./components/Select";
 export { Textarea, type TextareaProps } from "./components/Textarea";

@@ -58,13 +58,24 @@ import { Button, Field, Icon, Input } from "@momenty/ui";
 
 ## Vad som finns
 
-| Komponent  | CSS            |
-| ---------- | -------------- |
-| `Button`   | `css/button.css` |
-| `Icon`     | — (inline SVG, 60 tecken) |
-| `Input`    | `css/field.css` |
-| `Textarea` | `css/field.css` |
-| `Field`    | `css/field.css` |
+| Komponent   | CSS              |
+| ----------- | ---------------- |
+| `Button`    | `css/button.css` |
+| `Icon`      | — (inline SVG, 60 tecken) |
+| `Input`     | `css/field.css`  |
+| `Textarea`  | `css/field.css`  |
+| `Field`     | `css/field.css`  |
+| `Select`    | `css/picker.css` |
+| `Combobox`  | `css/picker.css` |
+| `Dropdown`  | `css/picker.css` |
+| `Menu`      | `css/picker.css` |
+| `Popover`   | `css/picker.css` |
+| `DateField` | `css/picker.css` |
+
+De sex sista delar panel, tangentbord och positionering via `picker-shared.ts`.
+Panelen portaleras till `document.body` — ett `position: absolute` inuti sidan
+räcker inte, eftersom varje glasyta bär `backdrop-filter` och den egenskapen
+skapar en stacking context som panelen inte kan ta sig ur.
 
 `css/base.css` importerar tokens plus alla komponenters CSS i rätt ordning.
 Vill du styra ordningen själv importerar du filerna var för sig — `tokens.css`

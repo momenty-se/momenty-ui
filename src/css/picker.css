@@ -1,0 +1,466 @@
+/* Väljarna — @momenty/ui.
+ *
+ * Härstammar ur momenty-flows `src/styles/flow/valjare.css`, generaliserad till
+ * kontraktets `--mo-*`. Samma laddningsordning gäller som för knappen: efter
+ * `@tailwind utilities`. Se css/button.css.
+ *
+ * Fyra kontroller som delar en yta: dropdownen väljer ett värde, menyn utför
+ * en handling, popovern förklarar ett ord, kalendern väljer en dag. Samma glas,
+ * olika svar.
+ *
+ * DE VAR WEBBLÄSARENS TIDIGARE. `<select>` och `type="date"` gav rätt
+ * tangentbord och rätt skärmläsare gratis, men ritade sin lista av
+ * operativsystemet — en systempanel mitt i en glasyta, olika i Safari, Chrome
+ * och på iOS. Det som byggs här är panelen designen ritar; tangentbordet och
+ * rollerna måste då skrivas för hand, och det är hela kostnaden för bytet.
+ *
+ * PRICK PÅ DET VALDA, ALDRIG EN BOCK. Designsystemet säger emot sig självt här:
+ * §05 ritar dropdownens valda rad med ✓ och jade-tint, §24 med en 6 px jadeprick
+ * på --mo-glass-raised. Vi följer §24 — dels för att det avsnittet handlar om
+ * just detta, dels för att resonemanget håller: `klar` är ett tecken i
+ * uppsättningen och betyder AVSLUTAT, så en bock i en väljare säger fel sak.
+ * §22 använder samma prick ("samma 6 px-prick som navet och fliken"), vilket
+ * gör §05 till avvikaren.
+ *
+ * MENYN HAR ANDRA RADIER ÄN DROPDOWNEN — 18/12 mot 10/14. Det är inte ett
+ * skrivfel i avläsningen; §24 ritar dem så. Skälet syns när de ligger bredvid
+ * varandra: dropdownen ärver fältets radie eftersom den hör ihop med ett fält,
+ * menyn hör ihop med en rund knapp och står friare.
+ */
+
+/* --- Fältet som öppnar -------------------------------------------------
+   Samma mått som .mo-input, men ett <button>: den öppnar en panel i stället
+   för att ta emot text. Kanten blir jade när panelen är öppen — det är enda
+   stället i systemet där en kontroll bär accenten på sin linje, och det är
+   för att den då är kopplad till något som svävar ovanför sidan. */
+.mo-picker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--mo-control-h);
+  padding: 0 14px;
+  border: 1px solid var(--mo-glass-line);
+  border-radius: var(--mo-radius-md);
+  background: var(--mo-glass-bg);
+  backdrop-filter: var(--mo-glass-blur);
+  -webkit-backdrop-filter: var(--mo-glass-blur);
+  font-size: 15px;
+  color: var(--mo-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.mo-picker[aria-expanded="true"] {
+  border-color: var(--mo-focus-ring);
+}
+
+.mo-picker:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* Värdet tar plats, chevronen står still. */
+.mo-picker-value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mo-picker-value--empty {
+  color: var(--mo-text-faint);
+}
+
+.mo-picker-icon {
+  flex: none;
+  color: var(--mo-text-faint);
+}
+
+/* --- Panelen som svävar ------------------------------------------------
+   Glasnivå 1 med panelskuggan — den ska läsas som att den ligger OVANFÖR
+   sidan, inte på den. Radien följer fältets, eftersom panelen hör ihop med
+   fältet den kom ur.
+
+   `fixed`, inte `absolute`: panelen renderas i `document.body` och får sin
+   plats mätt ur knappen. Se docblocket i `valjare-delat.ts` — en panel inuti
+   en glasyta kan inte lägga sig över något utanför den, eftersom
+   `backdrop-filter` skapar en stacking context.
+
+   105 I HÖJDLEDEN. Stegen står i dialog.css: kantpanelen på 90, dialogens
+   överlägg på 100, återkopplingen på 110. En väljare öppnas ofta INUTI en
+   dialog och måste därför ligga över den — men under kvittot på det man just
+   gjorde. */
+.mo-panel {
+  position: fixed;
+  z-index: 105;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  /* 320 px är designmåttet: en lista som fyller skärmen läses inte längre som
+     en lista. Variabeln kommer från mätningen och kan bara klämma NEDÅT — den
+     bär hur mycket som faktiskt syns när tangentbordet är uppe. */
+  max-height: min(320px, var(--mo-panel-max-h, 320px));
+  overflow-y: auto;
+  padding: 6px;
+  border: 1px solid var(--mo-panel-line);
+  border-radius: var(--mo-radius-md);
+  background: var(--mo-menu-bg);
+  box-shadow: var(--mo-shadow-panel);
+  backdrop-filter: var(--mo-panel-blur);
+  -webkit-backdrop-filter: var(--mo-panel-blur);
+}
+
+/* Raden är 44 px också här. En lista man pekar i är inte tätare än en knapp. */
+.mo-panel-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: var(--mo-control-h);
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--mo-radius-panel-row);
+  background: none;
+  font-size: 15px;
+  line-height: 1.35;
+  color: var(--mo-text-muted);
+  text-align: left;
+  cursor: pointer;
+}
+
+.mo-panel-row:hover,
+.mo-panel-row[data-aktiv="true"] {
+  background: var(--mo-glass-hover);
+}
+
+.mo-panel-row--selected {
+  background: var(--mo-glass-raised);
+  color: var(--mo-text);
+}
+
+/* Pricken sitter i sitt spår även när raden är ovald, annars hoppar texten
+   i sidled när markeringen flyttar sig. */
+.mo-panel-dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--mo-radius-pill);
+}
+
+.mo-panel-row--selected .mo-panel-dot {
+  background: var(--mo-accent);
+}
+
+.mo-panel-text {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Rubrik inuti en panel — "3 träffar", gruppnamn. */
+.mo-panel-heading {
+  padding: 6px 12px 4px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--mo-text-faint);
+}
+
+/* Nyckeln före etiketten i en lista — kontonumret i en kontoväljare, koden i
+   en landsväljare. Mono och tabular, så att siffrorna står i kolumn ner genom
+   listan i stället för att vandra. `flex: none` ligger i regeln och inte som en
+   utility på anropsstället: paketet får inte bero på att appen har Tailwind. */
+.mo-panel-key {
+  flex: none;
+  font-family: var(--mo-font-mono);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--mo-text-muted);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* Andra raden under en etikett i listan — den som förklarar valet. */
+.mo-panel-hint {
+  display: block;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--mo-text-faint);
+}
+
+.mo-panel-empty {
+  padding: 12px;
+  font-size: 14px;
+  color: var(--mo-text-faint);
+}
+
+/* --- Menyn -------------------------------------------------------------
+   Ingen prick, ingen markering: inget är valt i en meny. Den utför. */
+.mo-menu {
+  border-radius: var(--mo-radius-menu);
+}
+
+.mo-menu .mo-panel-row {
+  border-radius: var(--mo-radius-menu-row);
+  color: var(--mo-text);
+}
+
+/* Den destruktiva raden ligger sist, under en linje. Gult, aldrig rött —
+   se DESIGNSYSTEM.md §1: rött finns inte i det här systemet. */
+.mo-menu-divider {
+  height: 1px;
+  margin: 6px 4px;
+  background: var(--mo-line);
+}
+
+.mo-menu .mo-panel-row--destructive {
+  color: var(--mo-warn-text);
+}
+
+/* --- Popovern ----------------------------------------------------------
+   Ingen knapp, inget att välja. Den förklarar ett ord och försvinner. */
+.mo-popover {
+  position: fixed;
+  z-index: 105;
+  box-sizing: border-box;
+  width: max-content;
+  max-width: 320px;
+  padding: 14px 16px;
+  border: 1px solid var(--mo-panel-line);
+  border-radius: var(--mo-radius-menu);
+  background: var(--mo-menu-bg);
+  box-shadow: var(--mo-shadow-panel);
+  backdrop-filter: var(--mo-panel-blur);
+  -webkit-backdrop-filter: var(--mo-panel-blur);
+}
+
+.mo-popover-heading {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--mo-text);
+}
+
+.mo-popover-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--mo-text-muted);
+}
+
+/* Exemplet är kursivt och står under en linje. Kursiv är tillåten här —
+   den skiljer det konkreta fallet från regeln ovanför. */
+.mo-popover-example {
+  margin: 10px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--mo-line);
+  font-size: 13px;
+  font-style: italic;
+  line-height: 1.55;
+  color: var(--mo-text-faint);
+}
+
+/* --- Kalendern ---------------------------------------------------------
+   BREDDEN ÄR FAST OCH UTRÄKNAD, INTE ÄRVD. Rutnätet låg först på `1fr` och
+   panelen krympte till innehållet: den blev smalare än sitt eget fält, och
+   olika bred beroende på om månaden rymdes på fem eller sex veckor. Nu är
+   cellen 38 px, och panelen 7 × 38 + 6 × 2 + 2 × 18 = 314 px oavsett månad.
+
+   Panelen är tätare än listans i höjdled — rutnätet bär sin egen luft mellan
+   dagarna. */
+.mo-calendar {
+  position: fixed;
+  z-index: 105;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-sizing: border-box;
+  /* Kalendern har fast innehåll och behöver normalt ingen takhöjd, men med
+     tangentbordet uppe finns det lägen där sex veckorader inte får plats i
+     det som syns. Då är en rullbar kalender bättre än en avklippt. */
+  max-height: var(--mo-panel-max-h, none);
+  overflow-y: auto;
+  width: 314px;
+  padding: 18px;
+  border: 1px solid var(--mo-line);
+  border-radius: var(--mo-radius-md);
+  background: var(--mo-menu-bg);
+  box-shadow: var(--mo-shadow-panel);
+  backdrop-filter: var(--mo-panel-blur);
+  -webkit-backdrop-filter: var(--mo-panel-blur);
+}
+
+.mo-calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* Månadsstegen är 34 px — ikonknappens mått, inte knappens 44. De sitter
+   inuti en panel som redan är en träffyta. */
+.mo-calendar-step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--mo-line);
+  border-radius: var(--mo-radius-pill);
+  background: none;
+  color: var(--mo-text-muted);
+  cursor: pointer;
+}
+
+.mo-calendar-step:hover {
+  background: var(--mo-glass-hover);
+}
+
+.mo-calendar-month {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--mo-text);
+}
+
+/* 1fr och inte 38px: panelen är 314 px med 18 px padding, alltså 278 px
+   innermått, och (278 − 6×2) / 7 = 38 på pricken. Skrivbordet ser exakt
+   likadant ut som med det fasta måttet — men på telefonen kan panelen nu
+   växa och dagarna växa med den, i stället för att låsa 7×38 och lämna
+   tummen att sikta mellan två pixlars mellanrum. */
+.mo-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+/* Veckodagsraden delar rutnät med dagarna, så bokstaven står över sin kolumn.
+   Ingen letter-spacing: ett ensamt tecken har inget att glesa mot, och 0,1em
+   sköt det ur mitten. */
+.mo-calendar-weekday {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: var(--mo-text-faint);
+}
+
+.mo-calendar-day {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 34px;
+  border: 1px solid transparent;
+  border-radius: var(--mo-radius-pill);
+  background: none;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--mo-text-muted);
+  cursor: pointer;
+}
+
+.mo-calendar-day:hover {
+  background: var(--mo-glass-hover);
+}
+
+/* Dagen man är på i dag bär en linje, inte en fyllning: den är en upplysning,
+   inte ett val. Den valda dagen bär accenten. */
+.mo-calendar-day--today {
+  border-color: var(--mo-line-strong);
+  color: var(--mo-text);
+}
+
+.mo-calendar-day--selected {
+  background: var(--mo-accent);
+  border-color: transparent;
+  color: var(--mo-text-on-accent);
+  font-weight: 500;
+}
+
+.mo-calendar-day:disabled {
+  color: var(--mo-text-disabled);
+  cursor: not-allowed;
+}
+
+.mo-calendar-day:disabled:hover {
+  background: none;
+}
+
+/* --- Omslaget ----------------------------------------------------------
+   Positionerar inte längre panelen — den ligger i `document.body`. Kvar är
+   `relative` för att holken ska vara en egen ruta att mäta och att träffa med
+   klick-utanför-kontrollen. */
+.mo-picker-anchor {
+  position: relative;
+}
+
+/* Fältet med fel. Gult på linjen, aldrig rött — och `aria-invalid` sätts INTE
+   här: den hör till formulärkontroller, och det som öppnar en panel är en
+   knapp. Feltexten kopplas av anropsstället, som redan gör det för Input. */
+.mo-picker--invalid {
+  border-color: var(--mo-warn);
+}
+
+/* --- Hur panelen kommer in ---------------------------------------------
+   220 ms och `cubic-bezier(.16,1,.3,1)` — designsystemets rad "Meny in" (§5).
+
+   Den bar först kantpanelens animation, en annan sak: 300 ms och
+   `translateX(105%)`. En dropdown som glider in från skärmens högerkant läser
+   som att ett helt fönster öppnar sig, inte som att ett fält fäller ut sin
+   lista. Panelen kommer ur fältet ovanför, så rörelsen är fyra pixlar nedåt
+   och ingenting annat. Inget studsar. */
+@keyframes moPickerEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mo-picker-enter {
+  animation: moPickerEnter 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  transform-origin: top center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mo-picker-enter {
+    animation: none;
+  }
+}
+
+/* --- Kalendern på telefonen -------------------------------------------
+
+   Dagarna är 34 px höga i ett rutnät med 2 px mellanrum. Att välja fel dag
+   i ett bokföringsprogram är inte kosmetiskt — det lägger posten i fel
+   momsperiod. Panelen växer därför till fingerspetsens mått i stället för
+   att behålla skrivbordets täthet.
+
+   Räknat: 7 × 44 + 6 × 2 = 320 px innermått, plus 2 × 12 px padding = 344.
+   `min()` mot skärmen håller den innanför kanten på en 360 px-telefon, och
+   rutnätets 1fr fördelar det som faktiskt finns. */
+@media (max-width: 639.98px) {
+  .mo-calendar {
+    width: min(344px, 100vw - 24px);
+    padding: 12px;
+  }
+
+
+  .mo-calendar-day {
+    height: var(--mo-control-h);
+  }
+
+  .mo-calendar-step {
+    width: var(--mo-control-h);
+    height: var(--mo-control-h);
+  }
+}

@@ -38,6 +38,10 @@
   --mo-text: #181410; /* flow-ink */
   --mo-text-muted: #5a5040; /* flow-tx2 */
   --mo-text-faint: #7a7064; /* flow-mute */
+  /* Svagare än faint, och bara för det som är avstängt — en kalenderdag utanför
+     månaden, en rad man inte kan välja. Får underskrida 4,5:1 just därför:
+     texten bär ingen information man behöver kunna läsa. */
+  --mo-text-disabled: #c9bfae; /* flow-faint */
   --mo-text-on-accent: #08221b; /* flow-on-accent */
 
   /* ── Linjer ─────────────────────────────────────────────────────────── */
@@ -77,6 +81,22 @@
   --mo-glass-line: #d4cdb9; /* flow-glass-kant = flow-rule-2 */
   --mo-glass-hover: rgba(255, 255, 255, 0.97);
   --mo-glass-blur: blur(24px) saturate(1.2);
+  /* Ytan som lyfts UR glaset — den valda radens fyllning i en panel. */
+  --mo-glass-raised: rgba(255, 255, 255, 0.92);
+
+  /* ── Panelen ────────────────────────────────────────────────────────
+     Det som svävar ovanför sidan: dropdownens lista, menyn, popovern,
+     kalendern. Eget glas och egen skugga, tätare än ytan under — annars
+     läser ögat panelen som en del av sidan i stället för ovanpå den.
+
+     `--mo-panel-max-h` sätts av JavaScript när panelen öppnas, med det
+     utrymme som faktiskt finns nedåt. Värdet här är bara ett tak. */
+  --mo-panel-bg: rgba(255, 255, 255, 0.82); /* flow-glass-1 */
+  --mo-panel-line: rgba(255, 255, 255, 0.9); /* flow-glass-1-line */
+  --mo-panel-blur: blur(28px) saturate(1.25); /* flow-glass-1-blur */
+  --mo-panel-max-h: 320px;
+  --mo-menu-bg: rgba(255, 255, 255, 0.9); /* flow-glass-menu */
+  --mo-shadow-panel: 0 40px 80px -44px rgba(80, 60, 20, 0.5);
 
   /* ── Form ───────────────────────────────────────────────────────────
      `--mo-control-h` är ett GOLV för allt man trycker på, satt efter WCAG 2.2
@@ -86,6 +106,12 @@
   --mo-radius-md: 10px; /* flow-r-field */
   --mo-radius-lg: 14px;
   --mo-radius-pill: 999px;
+  /* Menyn har andra radier än dropdownen — 18/12 mot 10/14. Inte ett skrivfel:
+     dropdownen ärver fältets radie eftersom den hör ihop med ett fält, medan
+     menyn hör ihop med en rund knapp och står friare. */
+  --mo-radius-panel-row: 14px; /* flow-r-menu-item */
+  --mo-radius-menu: 18px;
+  --mo-radius-menu-row: 12px;
 
   /* ── Typografi ──────────────────────────────────────────────────────
      Paketet sätter aldrig en font-family på en komponent — allt ärver från
@@ -147,6 +173,12 @@
     --mo-glass-bg: rgba(255, 255, 255, 0.15);
     --mo-glass-line: rgba(255, 255, 255, 0.22); /* flow-glass-input-line mörk */
     --mo-glass-hover: rgba(255, 255, 255, 0.26);
+    --mo-text-disabled: #5d564c;
+    --mo-panel-bg: rgba(26, 23, 20, 0.66);
+    --mo-panel-line: rgba(255, 255, 255, 0.16);
+    --mo-menu-bg: rgba(30, 27, 23, 0.94);
+    --mo-glass-raised: rgba(255, 255, 255, 0.2);
+    --mo-shadow-panel: 0 40px 80px -44px rgba(0, 0, 0, 0.85);
 
     --mo-focus-ring: #4bd6a4;
 
@@ -188,6 +220,12 @@
   --mo-glass-bg: rgba(255, 255, 255, 0.15);
   --mo-glass-line: rgba(255, 255, 255, 0.22);
   --mo-glass-hover: rgba(255, 255, 255, 0.26);
+  --mo-text-disabled: #5d564c;
+  --mo-panel-bg: rgba(26, 23, 20, 0.66);
+  --mo-panel-line: rgba(255, 255, 255, 0.16);
+  --mo-menu-bg: rgba(30, 27, 23, 0.94);
+  --mo-glass-raised: rgba(255, 255, 255, 0.2);
+  --mo-shadow-panel: 0 40px 80px -44px rgba(0, 0, 0, 0.85);
 
   --mo-focus-ring: #4bd6a4;
 

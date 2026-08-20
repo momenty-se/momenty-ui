@@ -65,11 +65,14 @@ går nedåt.
 | `--mo-text`            | Brödtext                                      |
 | `--mo-text-muted`      | Sekundär                                      |
 | `--mo-text-faint`      | Tertiär, hjälptext, inaktiv                   |
+| `--mo-text-disabled`   | Avstängt: en dag utanför månaden, en rad man inte kan välja |
 | `--mo-text-on-accent`  | Text ovanpå `--mo-accent`                     |
 | `--mo-text-on-bad`     | Text ovanpå fylld `--mo-bad`                  |
 
 `faint` är det svagaste som fortfarande klarar 4,5:1 mot `--mo-bg`. Behöver du
-något svagare är svaret att ta bort texten, inte att blekna den.
+något svagare är svaret att ta bort texten, inte att blekna den — med ett
+undantag: `disabled` får underskrida, just för att texten där inte bär någon
+information man behöver kunna läsa.
 
 ### Linjer
 
@@ -114,9 +117,30 @@ Både Flow och control-room bygger på glasmorfism. Golvet är Flows glas.
 | `--mo-glass-line`   | Glaskant                                        |
 | `--mo-glass-hover`  | Hovring på glas                                 |
 | `--mo-glass-blur`   | `blur(24px) saturate(1.2)` — sätt `none` för matt |
+| `--mo-glass-raised` | Ytan som lyfts ur glaset: den valda radens fyllning |
 
 En app som inte vill ha glas sätter `--mo-glass-blur: none` och pekar `bg` och
 `line` på sina matta ytor. Inget behöver stängas av på komponentnivå.
+
+### Panelen
+
+Det som svävar ovanför sidan: dropdownens lista, menyn, popovern, kalendern.
+Eget glas och egen skugga, tätare än ytan under — annars läser ögat panelen som
+en del av sidan i stället för ovanpå den.
+
+| Token                | Roll                                                    |
+| -------------------- | ------------------------------------------------------- |
+| `--mo-panel-bg`      | Panelens glasfyllning                                   |
+| `--mo-panel-line`    | Panelens kant                                           |
+| `--mo-panel-blur`    | Panelens blur, tätare än ytans                          |
+| `--mo-panel-max-h`   | Sätts av JavaScript vid öppning — se nedan              |
+| `--mo-menu-bg`       | Menyns fyllning, tätare än listpanelens                 |
+| `--mo-shadow-panel`  | Panelens skugga                                         |
+
+`--mo-panel-max-h` mäts fram när panelen öppnas och bär hur mycket som faktiskt
+syns nedåt, med tangentbordet inräknat. Den kan bara klämma **nedåt**: regeln
+är `min(320px, var(--mo-panel-max-h))`, eftersom 320 px är designmåttet — en
+lista som fyller skärmen läses inte längre som en lista.
 
 ### Form
 
@@ -127,6 +151,13 @@ En app som inte vill ha glas sätter `--mo-glass-blur: none` och pekar `bg` och
 | `--mo-radius-md`     | `10px`         | Fält, kort                    |
 | `--mo-radius-lg`     | `14px`         | Paneler, dialoger             |
 | `--mo-radius-pill`   | `999px`        | Knappar, piller               |
+| `--mo-radius-panel-row` | `14px`      | Rad i en dropdownlista        |
+| `--mo-radius-menu`   | `18px`         | Menyns panel                  |
+| `--mo-radius-menu-row` | `12px`       | Rad i en meny                 |
+
+Menyn har andra radier än dropdownen — 18/12 mot 10/14 — och det är inte ett
+skrivfel. Dropdownen ärver fältets radie eftersom den hör ihop med ett fält;
+menyn hör ihop med en rund knapp och står friare.
 
 `--mo-control-h` är satt efter WCAG 2.2 (Target Size, AA) och Flows §04.
 **Höj det gärna. Sänk det aldrig.**
@@ -140,9 +171,9 @@ piller.
 | Token                                    | Roll                                        |
 | ---------------------------------------- | ------------------------------------------- |
 | `--mo-font-sans` · `-serif` · `-mono`    | Ärvs från appen; finns för de få undantagen |
-| `--mo-motion-fast` · `-base`             | 120 ms · 200 ms                             |
+| `--mo-motion-fast` · `-base`             | 250 ms · 400 ms                             |
 | `--mo-focus-ring`                        | Egen token, inte accenten — se nedan        |
-| `--mo-shadow-sm` · `-md`                 | Två nivåer                                  |
+| `--mo-shadow-sm` · `-md`                 | Två nivåer; panelen har sin egen, se ovan   |
 
 Fokusringen är egen och inte accentens, eftersom den måste synas mot alla ytor
 och en ljus accent inte alltid duger som ring. Flows original hade ingen
@@ -228,6 +259,11 @@ RGB-tripletter för Tailwinds alfakanal och behöver lindas:
 | `.mo-textarea`   | `--invalid`                                                              |
 | `.mo-field`      | `--plain` `--invalid` `--locked`                                         |
 | `.mo-label` · `.mo-hint` · `.mo-field-error` · `.mo-field-group` | — |
+| `.mo-picker`     | `--invalid` · delar `-value` `-icon` `-anchor` `-enter`                  |
+| `.mo-panel`      | `-row` (`--selected` `--destructive`) · `-dot` `-text` `-heading` `-key` `-hint` `-empty` |
+| `.mo-menu`       | `-divider`                                                               |
+| `.mo-popover`    | `-heading` `-text` `-example`                                            |
+| `.mo-calendar`   | `-day` (`--today` `--selected`) · `-header` `-step` `-month` `-grid` `-weekday` |
 
 En app som behöver en knapp som bryter mot systemet skriver den i sin **egen**
 CSS. Mönstret är att sätta om en token i stället för att skriva en ny regel,

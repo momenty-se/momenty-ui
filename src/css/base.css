@@ -17,6 +17,7 @@
 @import "./tokens.css";
 @import "./button.css";
 @import "./field.css";
+@import "./picker.css";
 
 /* --- Hjälpklasser -----------------------------------------------------
    Namngivna `mo-` av samma skäl som allt annat: en app kan ha en egen

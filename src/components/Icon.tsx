@@ -465,7 +465,7 @@ const KROPPAR: Record<IconNamn, React.ReactNode> = {
   ),
   /* En öppen båge, inte en hel ring: en hel ring ser likadan ut i varje
      bildruta och ser därför stillastående ut även när den roterar. Rotationen
-     är ytans jobb — `className="animate-spin"` på anropsstället. */
+     är ytans jobb — `className="mo-spin"` på anropsstället. */
   snurra: <path d="M21 12a9 9 0 1 1-9-9" />,
 };
 
