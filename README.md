@@ -1,5 +1,7 @@
 # @momenty/ui
 
+[![Styleguide](https://github.com/momenty-se/momenty-ui/actions/workflows/styleguide.yml/badge.svg)](https://momenty-se.github.io/momenty-ui/)
+
 Momentys gemensamma komponentbibliotek. **Paketet äger formen, appen äger
 färgen.**
 
@@ -84,6 +86,11 @@ Vill du styra ordningen själv importerar du filerna var för sig — `tokens.cs
 måste då komma först.
 
 ## Styleguiden
+
+**[momenty-se.github.io/momenty-ui](https://momenty-se.github.io/momenty-ui/)** —
+publicerad från main vid varje push.
+
+Lokalt:
 
 ```bash
 npm run styleguide
