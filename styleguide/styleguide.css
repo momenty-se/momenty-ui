@@ -1,0 +1,127 @@
+/* Styleguidens EGEN layout — inte en del av paketet.
+ *
+ * Med flit skriven i vanlig CSS mot kontraktets tokens: sidan ska bevisa att
+ * en app kan bygga sin layout på `--mo-*` utan att veta något om paketets
+ * inre. Bär den Tailwind hade den beviset varit värdelöst.
+ */
+
+html,
+body {
+  margin: 0;
+  background: var(--mo-bg);
+  color: var(--mo-text);
+  font-family: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Serifen används av .mo-t-display och .mo-t-page-title via --mo-font-serif,
+   som annars ärver. Styleguiden pekar ut den, precis som en app gör. */
+:root {
+  --mo-font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif;
+  --mo-font-serif: "Instrument Serif", ui-serif, Georgia, serif;
+  --mo-font-mono: "Fira Code", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.sg-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 24px 120px;
+}
+
+.sg-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--mo-line);
+}
+
+.sg-lead {
+  max-width: 52ch;
+  margin-top: 8px;
+}
+
+.sg-section {
+  margin-top: 56px;
+}
+
+.sg-note {
+  margin: 4px 0 0;
+  max-width: 62ch;
+}
+
+.sg-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.sg-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.sg-wide {
+  width: 100%;
+}
+
+.sg-skeletons {
+  max-width: 420px;
+}
+
+.sg-type-row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  align-items: baseline;
+  gap: 20px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--mo-line);
+}
+
+.sg-type-name,
+.sg-icon code {
+  font-family: var(--mo-font-mono);
+  font-size: 11px;
+  color: var(--mo-text-faint);
+}
+
+.sg-icons {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: 4px;
+  margin: 12px 0 28px;
+}
+
+.sg-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 6px;
+  border-radius: var(--mo-radius-md);
+  color: var(--mo-text-muted);
+  text-align: center;
+}
+
+.sg-icon:hover {
+  background: var(--mo-bg-subtle);
+  color: var(--mo-text);
+}
+
+.sg-icon code {
+  word-break: break-all;
+  line-height: 1.2;
+}
+
+/* Växeln stylas av en förälder med aria-checked — det är hela poängen med
+   att den bara renderar spåret. Styleguiden måste därför ge den en sådan
+   förälder, precis som en inställningsrad gör. */
+.sg-toggle-demo {
+  display: inline-flex;
+  cursor: pointer;
+}

@@ -17,7 +17,7 @@ import type { ReactNode } from "react";
 
 export interface ReportRowProps {
   label: ReactNode;
-  belopp: number | null;
+  amount: number | null;
   indented?: boolean;
   total?: boolean;
   /** Jämförelse mot föregående år — enda stället talet får bära jade. */
@@ -29,7 +29,7 @@ function formatera(v: number): string {
   return v < 0 ? `−${abs}` : abs;
 }
 
-export function ReportRow({ label, belopp, indented = false, total = false, comparison = false }: ReportRowProps) {
+export function ReportRow({ label, amount, indented = false, total = false, comparison = false }: ReportRowProps) {
   return (
     <div
       className={["mo-report-row", indented ? "mo-report-row--indented" : "", total ? "mo-report-row--total" : ""]
@@ -41,7 +41,7 @@ export function ReportRow({ label, belopp, indented = false, total = false, comp
         className={total ? "mo-t-total" : "mo-t-amount"}
         style={comparison ? { color: "var(--mo-accent-text)" } : undefined}
       >
-        {belopp === null ? "—" : `${comparison && belopp > 0 ? "+" : ""}${formatera(belopp)}`}
+        {amount === null ? "—" : `${comparison && amount > 0 ? "+" : ""}${formatera(amount)}`}
       </span>
     </div>
   );

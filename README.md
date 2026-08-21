@@ -58,21 +58,23 @@ import { Button, Field, Icon, Input } from "@momenty/ui";
 
 ## Vad som finns
 
-| Komponent   | CSS              |
-| ----------- | ---------------- |
-| `Button`    | `css/button.css` |
-| `Icon`      | — (inline SVG, 60 tecken) |
-| `Input`     | `css/field.css`  |
-| `Textarea`  | `css/field.css`  |
-| `Field`     | `css/field.css`  |
-| `Select`    | `css/picker.css` |
-| `Combobox`  | `css/picker.css` |
-| `Dropdown`  | `css/picker.css` |
-| `Menu`      | `css/picker.css` |
-| `Popover`   | `css/picker.css` |
-| `DateField` | `css/picker.css` |
+Trettio komponenter.
 
-De sex sista delar panel, tangentbord och positionering via `picker-shared.ts`.
+| Område | Komponenter | CSS |
+| ------ | ----------- | --- |
+| Knappar | `Button` | `button.css` |
+| Fält | `Input` `Textarea` `Field` | `field.css` |
+| Väljare | `Select` `Combobox` `Dropdown` `Menu` `Popover` `DateField` | `picker.css` |
+| Överlägg | `Dialog` `Lightbox` | `dialog.css` |
+| Val | `Checkbox` `ChoiceCard` `SelectRow` `Toggle` `StatusMark` `Chip` | `choice.css` |
+| Växlar | `PillSwitch` `Skeleton` | `switch.css` |
+| Typografi | `Text` | `typography.css` |
+| Återkoppling | `Badge` `Banner` | `feedback.css` |
+| Mönster | `ReportRow` `SettingCard` `SettingRow` `Steps` | `blocks.css` |
+| Layout | `FilterStrip` `ErrorBoundary` | `patterns.css` |
+| Tecken | `Icon` | — (inline SVG, 60 tecken) |
+
+Väljarna delar panel, tangentbord och positionering via `picker-shared.ts`.
 Panelen portaleras till `document.body` — ett `position: absolute` inuti sidan
 räcker inte, eftersom varje glasyta bär `backdrop-filter` och den egenskapen
 skapar en stacking context som panelen inte kan ta sig ur.
@@ -80,6 +82,32 @@ skapar en stacking context som panelen inte kan ta sig ur.
 `css/base.css` importerar tokens plus alla komponenters CSS i rätt ordning.
 Vill du styra ordningen själv importerar du filerna var för sig — `tokens.css`
 måste då komma först.
+
+## Styleguiden
+
+```bash
+npm run styleguide
+```
+
+Varje komponent i sina tillstånd, i ljust och mörkt läge. Den importerar
+`src/` direkt, alltså exakt de filer en app installerar.
+
+Den finns av ett skäl: allt annat går att verifiera med `tsc` och grep, men
+ingen av dem kan se om en CSS-regel blev fel. Styleguiden hittade tre fel som
+alla andra kontroller släppte igenom — ett CSS-block klippt på fel radnummer,
+ett svenskt fältnamn kvar i `ICON_GROUPS`, och en prop som hette `belopp` i ett
+i övrigt engelskt API.
+
+## Kontroller
+
+```bash
+npm run check
+```
+
+Kör typkontroll på paketet, typkontroll på styleguiden, och `check-css.mjs` —
+som parsar varje CSS-fil med postcss, kontrollerar att varje klass i markup har
+en regel, att varje token är definierad eller har fallback, och att ingen
+Tailwind-klass smugit sig in i markup.
 
 ## Anpassa
 

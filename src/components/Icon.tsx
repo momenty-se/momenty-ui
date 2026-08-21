@@ -534,9 +534,9 @@ export const ICON_LABELS: Record<IconName, string> = {
 };
 
 /** De fyra grupperna, i katalogordning. Granskningsytan läser dem härifrån. */
-export const ICON_GROUPS: { rubrik: string; name: IconName[] }[] = [
+export const ICON_GROUPS: { heading: string; name: IconName[] }[] = [
   {
-    rubrik: "Platser",
+    heading: "Platser",
     name: [
       "home",
       "ledger",
@@ -555,7 +555,7 @@ export const ICON_GROUPS: { rubrik: string; name: IconName[] }[] = [
     ],
   },
   {
-    rubrik: "Handlingar",
+    heading: "Handlingar",
     name: [
       "add",
       "edit",
@@ -583,7 +583,7 @@ export const ICON_GROUPS: { rubrik: string; name: IconName[] }[] = [
     ],
   },
   {
-    rubrik: "Riktning och läge",
+    heading: "Riktning och läge",
     name: [
       "chevron",
       "back",
@@ -602,7 +602,7 @@ export const ICON_GROUPS: { rubrik: string; name: IconName[] }[] = [
     ],
   },
   {
-    rubrik: "Tid och signal",
+    heading: "Tid och signal",
     name: [
       "deadline",
       "reminder",

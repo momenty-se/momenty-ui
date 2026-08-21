@@ -5,11 +5,6 @@
  * som stannar i Flow. Laddas efter `@tailwind utilities`.
  */
 
-/* --- Rapportraden -------------------------------------------------- */
-    padding: 12px 14px;
-  }
-}
-
 /* =====================================================================
    §20 RAPPORTRAD — ett minustecken är inte ett fel
    ===================================================================== */
@@ -37,8 +32,7 @@
 /* =====================================================================
    §27 STEG — var man är, och vad som är kvar
    =====================================================================
-
-/* --- Stegen -------------------------------------------------------- */
+   Skenan är PILLER, inte numrerade cirklar. Ett nummer säger "steg 3 av 5"
    och tvingar läsaren att räkna; ordet säger "Kontering" och behöver ingen
    räkning. Klara steg byter numret mot en bock, och pillret mot glasytan.
 
@@ -127,8 +121,19 @@
     display: none;
   }
   .mo-steps-text {
+    display: block;
+  }
+}
 
-/* --- Kortet och inställningsraden ---------------------------------- */
+/* =====================================================================
+   AVSNITTSYTAN — glasnivå 2, delad av gruppen och kortet
+   =====================================================================
+   En rundad nivå-2-ruta med `overflow: hidden`, så att hårlinjerna inuti
+   möter kanten i stället för att sticka ut genom rundningen.
+
+   TVÅ NAMN, EN DEKLARATION. `.mo-setting-group` bär rader man kan ändra,
+   `.mo-card` bär ett huvud och ett stycke — skillnaden är vad ytan
+   INNEHÅLLER, inte hur den ser ut. Namnen finns kvar för att anropsstället
    ska säga vilket av de två det bygger, men måtten står här en enda gång.
    Ändras glasnivån följer båda med, och de kan aldrig glida isär.
 
@@ -371,6 +376,7 @@
 .mo-card--destructive .mo-card-title {
   color: var(--mo-bad);
 }
+
 
 /* Tre Tailwind-utilities som låg i markup och därför var verkningslösa i en
    app utan Tailwind. `display: contents` på omslaget är inte kosmetik: utan

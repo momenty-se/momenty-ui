@@ -22,11 +22,11 @@ export interface PillSwitchProps<T extends string> {
   ariaLabel: string;
   className?: string;
   style?: React.CSSProperties;
-  /** Spårets width fylls ut och alternativen delar den jämnt — för filterrader
-   *  som ska ta hela sin behållares width i stället för att krympa till text. */
+  /** Spårets bredd fylls ut och alternativen delar den jämnt — för filterrader
+   *  som ska ta hela sin behållares bredd i stället för att krympa till text. */
   fullWidth?: boolean;
   /** Spåret bryter till fler rader i stället för att svämma över i sidled —
-   *  för längre listor (5+ options, långa etiketter) som inte får plats
+   *  för längre listor (5+ alternativ, långa etiketter) som inte får plats
    *  på en rad. Markeringen mäts i två dimensioner oavsett, så den hittar
    *  rätt även när den valda knappen står på rad två. */
   wrap?: boolean;
