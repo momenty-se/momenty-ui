@@ -150,6 +150,14 @@
 }
 
 /* --- Huvudet ----------------------------------------------------------- */
+/* Ögonbrynet över rubriken. Var två Tailwind-utilities i markup och därför
+   verkningslöst i en app utan Tailwind. */
+.mo-dialog-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .mo-dialog-header {
   display: flex;
   align-items: flex-start;

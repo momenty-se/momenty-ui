@@ -26,7 +26,8 @@
     "./css/choice.css": "./src/css/choice.css",
     "./css/switch.css": "./src/css/switch.css",
     "./css/typography.css": "./src/css/typography.css",
-    "./css/feedback.css": "./src/css/feedback.css"
+    "./css/feedback.css": "./src/css/feedback.css",
+    "./css/blocks.css": "./src/css/blocks.css"
   },
   "files": [
     "LICENSE",

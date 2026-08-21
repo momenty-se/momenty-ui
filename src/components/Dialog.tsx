@@ -146,7 +146,7 @@ export function Dialog({
         <div className="mo-dialog-handle" aria-hidden="true" />
 
         <div className="mo-dialog-header">
-          <div className="flex flex-col gap-1.5">
+          <div className="mo-dialog-heading">
             {label ? <span className="mo-label">{label}</span> : null}
             <h2 id={titleId} className="mo-dialog-title">
               {title}

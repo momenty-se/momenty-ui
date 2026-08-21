@@ -1,0 +1,390 @@
+/* Mönster ur monster.css — @momenty/ui.
+ *
+ * Rapportraden, stegen, kortet och inställningsraden. Härstammar ur
+ * momenty-flows `src/styles/flow/monster.css`, som innehåller mycket annat
+ * som stannar i Flow. Laddas efter `@tailwind utilities`.
+ */
+
+/* --- Rapportraden -------------------------------------------------- */
+    padding: 12px 14px;
+  }
+}
+
+/* =====================================================================
+   §20 RAPPORTRAD — ett minustecken är inte ett fel
+   ===================================================================== */
+.mo-report-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: var(--mo-control-h-compact);
+}
+
+/* Indraget är 22 px i EN nivå. Fler nivåer gör en resultaträkning till ett
+   träd, och den är en lista. */
+.mo-report-row--indented {
+  padding-left: 22px;
+}
+
+.mo-report-row--total {
+  min-height: var(--mo-control-h);
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--mo-line-strong);
+}
+
+/* =====================================================================
+   §27 STEG — var man är, och vad som är kvar
+   =====================================================================
+
+/* --- Stegen -------------------------------------------------------- */
+   och tvingar läsaren att räkna; ordet säger "Kontering" och behöver ingen
+   räkning. Klara steg byter numret mot en bock, och pillret mot glasytan.
+
+   Under 640 px försvinner skenan helt och ersätts av en textrad —
+   "Steg 3 av 4 · Kontering". Fyra piller i bredd blir en remsa på en telefon,
+   och en remsa säger mindre än en mening. */
+.mo-steps {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 6px;
+}
+
+.mo-steps-item {
+  /* Kom gratis ur Tailwinds preflight i Flow (`button { font-family: inherit;
+     margin: 0 }` och `[role="button"] { cursor: pointer }`). I en app utan
+     Tailwind renderas steget annars i webbläsarens knapptypsnitt, med
+     UA-marginal och utan handmarkör. */
+  font-family: inherit;
+  margin: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 13px;
+  border: 1px solid transparent;
+  border-radius: var(--mo-radius-pill);
+  background: none;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Det som är kvar: konturen finns, men ytan har inte fyllts än. */
+.mo-steps-item--upcoming {
+  /* Ett kommande steg går inte att nå — då ska det inte se klickbart ut. */
+  cursor: default;
+  border-color: var(--mo-line);
+  color: var(--mo-text-faint);
+}
+
+/* Här står du. Det ENDA fyllda pillret i skenan — två fyllda hade sagt att
+   man är på två ställen samtidigt. */
+.mo-steps-item--current {
+  background: var(--mo-accent);
+  border-color: var(--mo-accent);
+  color: var(--mo-text-on-accent);
+}
+
+/* Passerat. Glasytan och bocken, inte accenten: det är gjort, inte pågående. */
+.mo-steps-item--done {
+  background: var(--mo-glass-bg);
+  border-color: var(--mo-glass-line);
+  color: var(--mo-accent-text);
+  backdrop-filter: var(--mo-glass-blur);
+  -webkit-backdrop-filter: var(--mo-glass-blur);
+}
+
+/* Linjen mellan två piller. Jade så länge man passerat den, hårlinje sedan —
+   den visar hur långt man kommit utan att behöva en procentsats. */
+.mo-steps-line {
+  flex: none;
+  width: 16px;
+  height: 1px;
+  background: var(--mo-line);
+}
+
+.mo-steps-line--done {
+  background: var(--mo-accent);
+}
+
+/* Telefonens variant: skenan tyst, meningen synlig. Bytet går åt båda håll
+   så att bara en av dem kan stå framme. */
+.mo-steps-text {
+  display: none;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--mo-text-faint);
+}
+
+@media (max-width: 639px) {
+  .mo-steps {
+    display: none;
+  }
+  .mo-steps-text {
+
+/* --- Kortet och inställningsraden ---------------------------------- */
+   ska säga vilket av de två det bygger, men måtten står här en enda gång.
+   Ändras glasnivån följer båda med, och de kan aldrig glida isär.
+
+   Kortets övriga delar står under KORTET MED HUVUD längre ner. */
+.mo-setting-group,
+.mo-card {
+  /* Raden inuti bryr sig om GRUPPENS bredd, inte om skärmens: samma
+     inställningsrad står ibland i en full sida och ibland i en 420 px dialog,
+     och en mediafråga kan inte skilja på de två. Container queries är
+     dessutom nya i repot — detta är första stället. `inline-size` innesluter
+     bara i sidled, så höjden räknas som vanligt.
+
+     OBS: elementet blir containing block för position:fixed-ättlingar. Det är
+     ofarligt här (en inställningsrad innehåller inga fixed-element), men
+     samma rad får INTE kopieras rakt av till .flow-dialog utan att notiser och
+     portalfria paneler kontrolleras först. */
+  container-type: inline-size;
+  border: 1px solid var(--mo-card-line);
+  border-radius: var(--mo-radius-card-inner);
+  background: var(--mo-card-bg);
+  overflow: hidden;
+  backdrop-filter: var(--mo-glass-blur);
+  -webkit-backdrop-filter: var(--mo-glass-blur);
+}
+
+/* =====================================================================
+   INSTÄLLNINGSRAD — etikett, värde, handling
+   =====================================================================
+   Måtten är avlästa ur prototypens Konto-vy, inte gissade. Jag byggde raden
+   tre gånger innan jag hade den att läsa ur: först med värdet till vänster,
+   sedan med ett subgrid som räknade om spåren. Båda var mina påhitt.
+
+   ETIKETTKOLUMNEN ÄR 176 PX OCH FAST. Det är hela lösningen på att kolumner
+   ska linjera mellan rader med och utan handling — inget rutnät behövs, och
+   en rad kan inte räkna om sin egen bredd när den inte har någon att räkna.
+   Raden utan handling håller platsen med en tom ruta på 64 px.
+
+   Etiketten bär vikten och bläckfärgen, värdet står dämpat bredvid. Skälet
+   är att man läser en inställningssida nedåt i vänsterkanten för att HITTA
+   rätt rad — inte för att läsa värdena i följd. Etiketten är ingången,
+   värdet är svaret.
+
+   Hjälptexten hör till etiketten och står under den: den förklarar vad raden
+   ÄR ("Syns i Flow, inte på fakturor"), inte vad som råkar stå i den. */
+/* KOMMENTAREN HÄR VAR FEL, OCH FELET KOSTADE HELA INSTÄLLNINGSYTAN.
+
+   Den påstod att flex-wrap är radens mobilläge: att värdet inte får plats
+   bredvid en 176 px etikett under ungefär 480 px och därför lägger sig på
+   egen rad av sig självt. Det gör det aldrig. `.mo-setting-row-value` har
+   `flex: 1` OCH `min-width: 0`, alltså flex-basis 0% och hypotetisk
+   huvudstorlek 0 — och flexbox bryter rad på hypotetisk storlek. Noll får
+   alltid plats.
+
+   Följden var att företagsnamnet och organisationsnumret fick omkring tolv
+   pixlar att stå på medan etiketten tog 176, i fyra inställningsflikar. Ord
+   som var bredare än så kunde inte brytas och målades över "ändra"-knappen.
+
+   Radbrytningen skrivs därför ut, och mot GRUPPENS bredd. */
+.mo-setting-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--mo-line);
+  transition: background var(--mo-motion-fast) ease;
+}
+
+.mo-setting-row:last-child {
+  border-bottom: none;
+}
+
+.mo-setting-row:hover {
+  background: var(--mo-glass-faint);
+}
+
+/* Under redigering släpper raden sin kolumnindelning — fälten behöver hela
+   bredden — och byter till en tätare yta. */
+.mo-setting-row[data-editing="true"] {
+  display: block;
+  background: var(--mo-glass-bg);
+}
+
+.mo-setting-row-label-col {
+  flex: none;
+  width: 176px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mo-setting-row-label {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--mo-text);
+}
+
+.mo-setting-row-hint {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--mo-text-faint);
+}
+
+.mo-setting-row-value {
+  flex: 1;
+  min-width: 0;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--mo-text-muted);
+}
+
+/* Tomvärde säger vad som saknas, inte att något är fel. Aldrig gult och
+   aldrig rött — ett ofyllt fält är inte ett problem förrän något kräver det. */
+.mo-setting-row-value--empty {
+  color: var(--mo-text-faint);
+}
+
+/* Handlingen är gemen och står i jade. Gemen eftersom den är en fortsättning
+   på raden och inte en egen mening: "Visningsnamn — Anders Nordvik — ändra".
+
+   Den ÄR en knapp med knappens höjd, men utan yta och utan linje. Det låter
+   motsägelsefullt tills man ser varför: träffytan måste vara 44 px hög även
+   när ingenting ritas, annars är den en 20 px hög textrad att pricka. */
+.mo-setting-row-action {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: var(--mo-control-h);
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: var(--mo-radius-pill);
+  background: none;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--mo-accent-text);
+  cursor: pointer;
+  transition:
+    background var(--mo-motion-fast) ease,
+    color var(--mo-motion-fast) ease;
+}
+
+.mo-setting-row-action:hover:not(:disabled) {
+  background: var(--mo-glass-hover);
+}
+
+.mo-setting-row-action:disabled {
+  color: var(--mo-text-faint);
+  cursor: not-allowed;
+}
+
+/* Platshållaren för raden utan handling. Utan den kryper värdet ut i
+   högerkanten och kolumnen tappar sin högra gräns. */
+.mo-setting-row-empty-action {
+  flex: none;
+  width: 64px;
+}
+
+/* Under 30rem (480 px) släpper raden sin kolumnindelning och staplar. 480 px
+   är samma gräns kommentaren ovan trodde att flexboxen skötte själv.
+   Platshållaren för raden utan handling tas bort — den håller en högerkant
+   som inte finns när allt står i en kolumn, och skulle bara lägga 64 px tom
+   yta under värdet. */
+@container (max-width: 30rem) {
+  .mo-setting-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+  }
+
+  .mo-setting-row-label-col {
+    width: 100%;
+  }
+
+  .mo-setting-row-action {
+    align-self: flex-start;
+  }
+
+  .mo-setting-row-empty-action {
+    display: none;
+  }
+}
+
+/* =====================================================================
+   KORTET MED HUVUD — rubrik, hårlinje, kropp
+   =====================================================================
+   Samma glasyta som inställningsgruppen, men med ett huvud i stället för en
+   rad överst. Den anatomin ritar prototypen på "Flera bokföringsset": 16 px
+   halvfet rubrik, hårlinje, och kroppen i lästext.
+
+   Själva ytan deklareras tillsammans med `.mo-setting-group` längre upp —
+   sök på GLASYTAN SOM BÄR ETT AVSNITT. Här står bara det som skiljer kortet
+   från gruppen: huvudet, rubriken och kroppen. */
+.mo-card-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--mo-line);
+}
+
+.mo-card-title {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--mo-text);
+  margin: 0;
+}
+
+.mo-card-hint {
+  flex-basis: 100%;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--mo-text-faint);
+  margin: 0;
+}
+
+.mo-card-body {
+  padding: 16px 20px;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--mo-text-muted);
+}
+
+/* Kortet som bär en oåterkallelig handling. Rött på linjen och på rubriken,
+   aldrig på ytan: en röd panel läser som att något REDAN gått fel. */
+.mo-card--destructive {
+  border-color: color-mix(in srgb, var(--mo-bad) 30%, transparent);
+}
+
+.mo-card--destructive .mo-card-header {
+  border-bottom-color: color-mix(in srgb, var(--mo-bad) 22%, transparent);
+}
+
+.mo-card--destructive .mo-card-title {
+  color: var(--mo-bad);
+}
+
+/* Tre Tailwind-utilities som låg i markup och därför var verkningslösa i en
+   app utan Tailwind. `display: contents` på omslaget är inte kosmetik: utan
+   den bryter varje steg ut ur radens grid och linjen mellan dem försvinner. */
+.mo-steps-item-wrap {
+  display: contents;
+}
+
+.mo-card-header > .mo-card-end {
+  margin-left: auto;
+}
+
+/* Ankarhopp till en inställningsrad ska inte lägga raden under den flytande
+   toppraden. */
+.mo-setting-row {
+  scroll-margin-top: 6rem;
+}
