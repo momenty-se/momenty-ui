@@ -98,6 +98,14 @@
   --mo-menu-bg: rgba(255, 255, 255, 0.9); /* flow-glass-menu */
   --mo-shadow-panel: 0 40px 80px -44px rgba(80, 60, 20, 0.5);
 
+  /* ── Överlägg ───────────────────────────────────────────────────────
+     Två styrkor, och skillnaden är avsiktlig. Dialogens dämpning är svag,
+     eftersom bakom den står ofta ett kvitto eller en tabell som användaren
+     jämför mot. Ljuslådans är kraftig — där ÄR bilden hela ärendet, och allt
+     annat ska försvinna. */
+  --mo-overlay-bg: rgba(24, 20, 16, 0.28);
+  --mo-lightbox-bg: rgba(20, 17, 12, 0.82);
+
   /* ── Form ───────────────────────────────────────────────────────────
      `--mo-control-h` är ett GOLV för allt man trycker på, satt efter WCAG 2.2
      (Target Size, AA) och Flows egen §04. Höj det gärna. Sänk det aldrig. */

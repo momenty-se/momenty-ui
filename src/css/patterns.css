@@ -1,0 +1,66 @@
+/* Mönster — @momenty/ui.
+ *
+ * Sammansättningar ovanpå primitiverna: rader, remsor, kort. De är inte
+ * kontroller i sig, utan bestämmer hur kontroller ligger i förhållande till
+ * varandra. Laddas efter `@tailwind utilities`, se css/button.css.
+ */
+
+/* --- Filterremsan ------------------------------------------------------
+   En rad filter som RULLAR i sidled på telefon i stället för att radbryta.
+
+   VARFÖR DEN FINNS. En filterrad som radbryter blir 150–300 px krom ovanför
+   den första posten, och man rullar förbi sitt eget filter varje gång listan
+   öppnas på en telefon. Värre än trångt: bär `html` ett `overflow-x: clip`
+   KLIPPS det som inte får plats bort i stället för att bli rullbart, och de
+   sista filtren går då inte att nå alls.
+
+   ANATOMIN, och varför varje del finns:
+
+   - Det negativa marginalparet under 640 px låter remsan bryta ut ur
+     förälderns ränna, så att första och sista chippet får rulla ända ut till
+     skärmkanten. Utan det ser raden avhuggen ut mitt i en rörelse.
+   - `width: max-content` på raden lägger barnen på EN rad oavsett antal.
+     Över 640 px lämnas radbrytningen tillbaka, där den är rätt.
+   - Rullningslisten döljs: en synlig list under en pillerrad läser som en
+     bugg. Att det går att rulla syns ändå på att innehållet flyttar sig.
+   - Den vertikala paddingen finns för att fokusringen på ett chip inte ska
+     klippas av remsans egen ram.
+
+   VARJE BARN MÅSTE BÄRA `flex-shrink: 0`, annars klämmer flexboxen ihop dem i
+   stället för att låta raden bli bred. Regeln nedan sätter det på barnen i
+   stället för att kräva det av anropsstället — originalet kunde inte, eftersom
+   det hade krävt att elementen klonades, och en klon tappar refs. En
+   descendant-selektor har inte det problemet. */
+.mo-filter-strip {
+  position: relative;
+  margin-inline: -16px;
+  padding: 4px 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.mo-filter-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.mo-filter-strip-row {
+  display: flex;
+  gap: 8px;
+  width: max-content;
+}
+
+.mo-filter-strip-row > * {
+  flex-shrink: 0;
+}
+
+@media (min-width: 640px) {
+  .mo-filter-strip {
+    margin-inline: 0;
+    padding-inline: 0;
+  }
+
+  .mo-filter-strip-row {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+}

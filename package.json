@@ -21,7 +21,8 @@
     "./css/field.css": "./src/css/field.css",
     "./css/*.css": "./src/css/*.css",
     "./css/picker.css": "./src/css/picker.css",
-    "./css/dialog.css": "./src/css/dialog.css"
+    "./css/dialog.css": "./src/css/dialog.css",
+    "./css/patterns.css": "./src/css/patterns.css"
   },
   "files": [
     "LICENSE",

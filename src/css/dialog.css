@@ -35,9 +35,9 @@
   align-items: center;
   justify-content: center;
   padding: 26px;
-  /* Bakgrunden dämpas med bläck på 28 %, aldrig med oskärpa: bakom dialogen
-     står ofta ett kvitto eller en tabell som användaren jämför mot. */
-  background: rgba(24, 20, 16, 0.28);
+  /* Bakgrunden dämpas med bläck, aldrig med oskärpa: bakom dialogen står ofta
+     ett kvitto eller en tabell som användaren jämför mot. */
+  background: var(--mo-overlay-bg);
 }
 
 .mo-dialog {
@@ -253,4 +253,47 @@
   .mo-overlay-enter {
     animation: none;
   }
+}
+
+/* --- Ljuslådan ---------------------------------------------------------
+   Bilden i full storlek, över allt annat. Egen klass och inte en dialog-
+   variant: den har ingen ram, ingen rubrik och ingen fot — bara bilden mot
+   ett nästan svart fält.
+
+   `object-fit: contain` och aldrig `cover`. Hellre luft runt kvittot än ett
+   kvitto med bortklippt topp och botten; det är hela poängen med att öppna
+   den. Safe-area i padding, eftersom bilden annars går in under statusfältet
+   på en telefon utan ram. */
+.mo-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  padding-top: max(16px, env(safe-area-inset-top));
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+  background: var(--mo-lightbox-bg);
+}
+
+.mo-lightbox:focus {
+  outline: none;
+}
+
+.mo-lightbox-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Krysset ligger i övre HÖGER hörn men med safe-area-marginal: på en stor
+   telefon nås det inte med tummen om det klistras i kanten. */
+.mo-lightbox-close {
+  position: absolute;
+  right: 12px;
+  top: max(12px, env(safe-area-inset-top));
+  z-index: 10;
+  background: var(--mo-glass-bg);
+  color: var(--mo-text);
 }
