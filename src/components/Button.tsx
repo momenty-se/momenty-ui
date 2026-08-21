@@ -63,7 +63,7 @@ export type ButtonVariant = keyof typeof VARIANT;
  * ändå"). Att vända `danger` till rött hade gjort "Bokför ändå" röd, vilket är
  * precis vad rött inte får betyda. De destruktiva migreras ett i taget.
  */
-const AVVECKLADE = {
+const LEGACY = {
   accent: "primary",
   "accent-solid": "primary",
   brand: "primary",
@@ -71,14 +71,14 @@ const AVVECKLADE = {
   ghost: "quiet",
   danger: "warn",
   /** Svenska namnen ur Flow. Engelskan är kanonisk i paketet. */
-  varning: "warn",
+  warning: "warn",
   "destructive-fylld": "destructive-solid",
 } as const;
 
-type AvvecklatNamn = keyof typeof AVVECKLADE;
+type LegacyName = keyof typeof LEGACY;
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: ButtonVariant | AvvecklatNamn;
+  variant?: ButtonVariant | LegacyName;
   /**
    * @deprecated Systemet har en knappstorlek och den är `--mo-control-h`.
    * Ignoreras.
@@ -91,9 +91,9 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children?: ReactNode;
 }
 
-function variantKlass(variant: ButtonVariant | AvvecklatNamn): string {
+function variantClass(variant: ButtonVariant | LegacyName): string {
   if (variant in VARIANT) return VARIANT[variant as ButtonVariant];
-  return VARIANT[AVVECKLADE[variant as AvvecklatNamn]];
+  return VARIANT[LEGACY[variant as LegacyName]];
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
@@ -114,7 +114,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   const isDisabled = disabled || loading;
   const buttonClassName = [
     "mo-btn",
-    variantKlass(variant),
+    variantClass(variant),
     fullWidth ? "mo-btn--block" : "",
     className,
   ]
@@ -170,7 +170,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
       {...props}
     >
       {loading ? (
-        <Icon namn="snurra" className="mo-spin" storlek={16} />
+        <Icon name="spinner" className="mo-spin" size={16} />
       ) : (
         icon
       )}

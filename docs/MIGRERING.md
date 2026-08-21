@@ -35,16 +35,23 @@ migrering blandad med annat arbete är svår att backa.
 + import { Icon } from "@momenty/ui";
 ```
 
-Tio filer importerar dessutom typen `IconNamn` från samma ställe; den
-exporteras med samma namn ur paketet.
+Tio filer importerar dessutom typen `IconNamn`; den heter `IconName` i
+paketet.
 
-**Ett tecken har bytt namn.** `fraga-flow` heter `assistent` i paketet — namnet
-var varumärkesbundet och ett delat paket kan inte bära det. Elva anropsställen
-berörs:
+**Alla 60 tecken har bytt namn, och propnamnen med.** Paketets API är engelskt
+rakt igenom: `namn` → `name`, `storlek` → `size`, `vrid` → `rotate`,
+`etikett` → `label`, och varje ikonnamn — `kvitto` → `receipt`,
+`huvudbok` → `ledger`, `vidare` → `chevron`.
 
-```bash
-grep -rl 'namn="fraga-flow"' src | xargs sed -i '' 's/namn="fraga-flow"/namn="assistent"/g'
-```
+Det är en större sed-övning än den ursprungliga planen räknade med, men den är
+helt mekanisk: översättningen är en-till-en och tabellen ligger i
+`scripts/oversatt-api.mjs`. Samma skript kan köras mot Flow med omvänd riktning
+avstängd — kör det som torrkörning först.
+
+Tre namn är inte raka översättningar och måste läsas: `oppna` blev
+`open-external` (inte `open`, som läses som "öppna panelen"), `klar` blev
+`check` (tecknet är en bock, inte ett tillstånd) och `fraga-flow` blev
+`assistant` (det gamla namnet var varumärkesbundet).
 
 Därefter kan `src/components/ui/Icon.tsx` raderas. Verifiera med `tsc` att
 inget importerar den längre.
@@ -56,7 +63,7 @@ Fyra ändringar, alla engångs.
 **1. Beroendet**
 
 ```bash
-npm install github:momenty-se/momenty-ui#v0.1.0
+npm install github:momenty-se/momenty-ui#v0.3.0
 ```
 
 **2. `next.config.mjs`** — Flow har ingen `transpilePackages` idag och behöver
@@ -170,8 +177,8 @@ tillbaka. Det är Flows beslut, inte paketets.
 
 ## Etapp 4 · Input, Textarea, Field
 
-51 filer byter importrad. `Input` har bytt propnamn men bär det gamla:
-`inmatning="belopp"` fungerar, `kind="amount"` är det nya.
+51 filer byter importrad. `Input` bär fortfarande sitt gamla propnamn som
+alias — `inmatning="belopp"` fungerar, `kind="amount"` är det nya.
 
 **60 className-strängar i 30 filer**, samma skript med den andra etappen:
 
@@ -184,6 +191,37 @@ node scripts/migrera-klasser.mjs --etapp=field ../momenty-flow/src
 Fyra regler som aldrig hörde till fältet: `.flow-fargprov`,
 `.flow-fargvaljare`, `.flow-rutnat--tatt` och `.flow-tabell`. De flyttas
 lämpligen till `monster.css`, där de hör hemma.
+
+## Väljarnas props är helt omdöpta
+
+Etapp 5, om `Select`, `Combobox`, `Dropdown`, `Menu`, `Popover` och `DateField`
+ska med i samma omgång. Här finns inga alias — API:t är nytt:
+
+| Förut           | Nu            |
+| --------------- | ------------- |
+| `värde`         | `value`       |
+| `val`           | `options`     |
+| `onValj`        | `onSelect`    |
+| `onÄndra`       | `onChange`    |
+| `onLämnad`      | `onCommit`    |
+| `platshållare`  | `placeholder` |
+| `etikett`       | `label`       |
+| `inaktiv`       | `disabled`    |
+| `fel`           | `error`       |
+| `poster`        | `items`       |
+| `knapp`         | `trigger`     |
+| `destruktiv`    | `destructive` |
+| `hjälp`         | `hint`        |
+| `nyckel`        | `code`        |
+| `högerställd`   | `alignRight`  |
+| `tidigast`      | `minDate`     |
+| `senast`        | `maxDate`     |
+
+`onLämnad` blev `onCommit` och inte `onBlur`, eftersom `DateField` redan tar
+emot ett DOM-`onBlur` via spread — två olika saker som inte får dela namn.
+
+`data-faltfel` heter `data-field-error` med värdet `"error"`. Bokslutets
+`useFaltfynd()` sprider det attributet och måste följa med.
 
 ## Verifiering
 

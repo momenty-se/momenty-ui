@@ -38,10 +38,14 @@ som betyder "kort". Gissningarna blir olika.
 kategorins grundfall: `--mo-bg`, inte `--mo-bg-base`. `--mo-text`, inte
 `--mo-text-primary`.
 
-**Engelska.** Tokens och CSS-klasser läses av varje app och av
-Tailwind-konfigurationer, och är en teknisk gränsyta. Komponenternas
-propnamn följer i stället repots äldre regel — engelska för generiskt,
-svenska för domän — med ett dokumenterat undantag, se längst ned.
+**Engelska, utan undantag.** Tokens, CSS-klasser, propnamn, typer, interna
+funktioner och ikonnamn. Paketet ska kunna läsas av vilken app som helst i
+organisationen, och flera av dem har engelsk kodbas sedan tidigare.
+
+Det som är kvar på svenska är två saker, båda med flit: **kommentarerna**, som
+är dokumentation på arbetsspråket och bär nyanser som inte överlever en
+maskinell översättning, och **UI-texten** — `"Välj datum"`, `"träffar"`,
+veckodagarna — som visas för slutanvändare i svenska produkter.
 
 ## Listan
 
@@ -275,11 +279,16 @@ så att undantaget syns i tokenlistan i stället för att gömma sig i en varian
 
 Först när två appar har skrivit samma undantag är det en kandidat för paketet.
 
-## Undantaget: `Icon` har svenska propnamn
+## Ikonnamnen
 
-`Icon` kom hit från momenty-flow med 109 anropsställen som redan skriver
-`namn`, `storlek`, `vrid` och `etikett`. Att översätta dem samtidigt som
-adressen byttes hade varit två risker i en, så de står kvar.
+Alla 60 tecken heter engelska namn: `receipt`, `ledger`, `invoice`, `tax`,
+`chevron`, `check`. De var svenska när de kom från momenty-flow och
+översattes en-till-en; inget tecken tappades eller slogs ihop.
 
-Allt annat följer regeln: `Button`, `Input`, `Field` och `Textarea` har
-engelska propnamn, och tokens och klassnamn är engelska utan undantag.
+Tre namn förtjänar en anmärkning eftersom de inte är raka översättningar:
+
+| Förut          | Nu                 | Varför                                        |
+| -------------- | ------------------ | --------------------------------------------- |
+| `oppna`        | `open-external`    | `open` ensamt läses som "öppna panelen"        |
+| `klar`         | `check`            | Tecknet är en bock; `done` är ett tillstånd    |
+| `fraga-flow`   | `assistant`        | Var varumärkesbundet och kan inte vara delat   |

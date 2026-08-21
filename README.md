@@ -11,7 +11,7 @@ för som klickbar adress.
 ## Koppla in
 
 ```bash
-npm install github:momenty-se/momenty-ui#v0.1.0
+npm install github:momenty-se/momenty-ui#v0.3.0
 ```
 
 Paketet distribueras som TypeScript-källkod, inte förbyggt. Next.js behöver
@@ -51,7 +51,7 @@ import { Button, Field, Icon, Input } from "@momenty/ui";
   <Input id="epost" type="email" fullWidth />
 </Field>
 
-<Button variant="primary" icon={<Icon namn="skicka" storlek={16} />}>
+<Button variant="primary" icon={<Icon name="send" size={16} />}>
   Skicka
 </Button>
 ```
@@ -95,6 +95,12 @@ appens egna variabler:
 ```
 
 Hela listan och namnreglerna finns i [docs/TOKENS.md](docs/TOKENS.md).
+
+## Språk
+
+API:t är engelskt rakt igenom — props, typer, ikonnamn, CSS-klasser, tokens.
+Kommentarerna är svenska, eftersom de är dokumentation på arbetsspråket. UI-text
+som når slutanvändaren är också svensk, eftersom produkterna är det.
 
 ## Bidra
 

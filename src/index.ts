@@ -18,7 +18,7 @@ export { Combobox, type ComboboxProps } from "./components/Combobox";
 export { DateField, type DateFieldProps } from "./components/DateField";
 export { Dropdown, type DropdownProps } from "./components/Dropdown";
 export { Field, type FieldProps } from "./components/Field";
-export { Icon, ikonStreck, IKON_ETIKETTER, IKON_GRUPPER, type IconNamn } from "./components/Icon";
+export { Icon, iconStroke, ICON_LABELS, ICON_GROUPS, type IconName } from "./components/Icon";
 export { Input, type InputProps, type InputKind } from "./components/Input";
 export { Menu, type MenuProps } from "./components/Menu";
 export { Popover, type PopoverProps } from "./components/Popover";

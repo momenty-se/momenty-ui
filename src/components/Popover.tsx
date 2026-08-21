@@ -19,46 +19,46 @@
 import { type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "./Icon";
-import { panelmått, sidled, useValjarlage } from "./picker-shared";
+import { panelSize, horizontalPlacement, usePicker } from "./picker-shared";
 
 export interface PopoverProps {
   /** Ordet som förklaras. Blir panelens rubrik. */
   term: string;
   children: ReactNode;
   /** Det konkreta fallet, med siffror. Kursivt, under en linje. */
-  exempel?: ReactNode;
+  example?: ReactNode;
   /** Panelen hänger i högerkanten. */
-  högerställd?: boolean;
+  alignRight?: boolean;
 }
 
-export function Popover({ term, children, exempel, högerställd = false }: PopoverProps) {
-  const { öppen, växla, holkRef, panelRef, plats, knappRef } = useValjarlage();
+export function Popover({ term, children, example, alignRight = false }: PopoverProps) {
+  const { open, toggle, anchorRef, panelRef, placement, triggerRef } = usePicker();
 
   return (
-    <span className="mo-picker-anchor" ref={holkRef as React.RefObject<HTMLDivElement>}>
+    <span className="mo-picker-anchor" ref={anchorRef as React.RefObject<HTMLDivElement>}>
       <button
         type="button"
-        ref={knappRef}
+        ref={triggerRef}
         className="mo-icon-btn"
-        onClick={växla}
-        aria-expanded={öppen}
+        onClick={toggle}
+        aria-expanded={open}
         aria-label={`Vad betyder ${term}?`}
       >
-        <Icon namn="forklaring" storlek={15} />
+        <Icon name="help" size={15} />
       </button>
 
-      {öppen &&
+      {open &&
         createPortal(
           <div
             ref={panelRef}
             className="mo-popover mo-picker-enter"
             role="dialog"
             aria-label={term}
-            style={{ top: plats?.top ?? 0, ...sidled(plats, högerställd), ...panelmått(plats) }}
+            style={{ top: placement?.top ?? 0, ...horizontalPlacement(placement, alignRight), ...panelSize(placement) }}
           >
             <p className="mo-popover-heading">{term}</p>
             <p className="mo-popover-text">{children}</p>
-            {exempel ? <p className="mo-popover-example">{exempel}</p> : null}
+            {example ? <p className="mo-popover-example">{example}</p> : null}
           </div>,
           document.body,
         )}

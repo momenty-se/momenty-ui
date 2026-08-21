@@ -20,24 +20,24 @@ const KIND = {
 export type InputKind = keyof typeof KIND;
 
 /** Namnen ur momenty-flow, kvar så att inget anropsställe går sönder. */
-const AVVECKLADE = {
+const LEGACY = {
   belopp: "amount",
   piller: "pill",
 } as const;
 
-type AvvecklatNamn = keyof typeof AVVECKLADE;
+type LegacyName = keyof typeof LEGACY;
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: boolean;
   fullWidth?: boolean;
-  kind?: InputKind | AvvecklatNamn;
+  kind?: InputKind | LegacyName;
   /** @deprecated Hette så i momenty-flow. Använd `kind`. */
-  inmatning?: InputKind | AvvecklatNamn;
+  inmatning?: InputKind | LegacyName;
 }
 
-function kindKlass(kind: InputKind | AvvecklatNamn): string {
+function kindClass(kind: InputKind | LegacyName): string {
   if (kind in KIND) return KIND[kind as InputKind];
-  return KIND[AVVECKLADE[kind as AvvecklatNamn]];
+  return KIND[LEGACY[kind as LegacyName]];
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
@@ -49,7 +49,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       ref={ref}
       className={[
         "mo-input",
-        kindKlass(kind ?? inmatning ?? "text"),
+        kindClass(kind ?? inmatning ?? "text"),
         error ? "mo-input--invalid" : "",
         fullWidth ? "mo-w-full" : "",
         className,

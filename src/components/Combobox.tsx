@@ -17,172 +17,172 @@
 import { useId, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "./Icon";
-import { nästaIndex, panelmått, rullaIn, useValjarlage } from "./picker-shared";
+import { nextIndex, panelSize, scrollRowIntoView, usePicker } from "./picker-shared";
 
-export interface ComboboxVal<T extends string> {
-  värde: T;
+export interface ComboboxOption<T extends string> {
+  value: T;
   /** Det som står först på raden — kontonumret. */
-  nyckel: string;
-  etikett: string;
+  code: string;
+  label: string;
 }
 
 export interface ComboboxProps<T extends string> {
-  värde: T | null;
-  val: ComboboxVal<T>[];
-  onValj: (värde: T | null) => void;
-  etikett?: string;
-  platshållare?: string;
+  value: T | null;
+  options: ComboboxOption<T>[];
+  onSelect: (value: T | null) => void;
+  label?: string;
+  placeholder?: string;
   id?: string;
-  inaktiv?: boolean;
-  fel?: boolean;
+  disabled?: boolean;
+  error?: boolean;
 }
 
 export function Combobox<T extends string>({
-  värde,
-  val,
-  onValj,
-  etikett,
-  platshållare = "Sök …",
+  value,
+  options,
+  onSelect,
+  label,
+  placeholder = "Sök …",
   id,
-  inaktiv = false,
-  fel = false,
+  disabled = false,
+  error = false,
 }: ComboboxProps<T>) {
   const [text, setText] = useState("");
-  const { öppen, öppna, stäng, holkRef, panelRef, plats } = useValjarlage(() => setText(""));
-  const faltRef = useRef<HTMLInputElement>(null);
-  const [aktiv, setAktiv] = useState(0);
+  const { open, openPanel, close, anchorRef, panelRef, placement } = usePicker(() => setText(""));
+  const fieldRef = useRef<HTMLInputElement>(null);
+  const [active, setActive] = useState(0);
   const panelId = useId();
 
-  const valt = val.find((v) => v.värde === värde) ?? null;
+  const chosen = options.find((v) => v.value === value) ?? null;
 
-  const träffar = useMemo(() => {
+  const hits = useMemo(() => {
     const q = text.trim().toLowerCase();
-    if (!q) return val;
-    return val.filter(
-      (v) => v.nyckel.toLowerCase().includes(q) || v.etikett.toLowerCase().includes(q),
+    if (!q) return options;
+    return options.filter(
+      (v) => v.code.toLowerCase().includes(q) || v.label.toLowerCase().includes(q),
     );
-  }, [text, val]);
+  }, [text, options]);
 
-  function vidTangent(e: React.KeyboardEvent) {
-    if (!öppen && (e.key === "ArrowDown" || e.key === "Enter")) {
+  function onKeyDown(e: React.KeyboardEvent) {
+    if (!open && (e.key === "ArrowDown" || e.key === "Enter")) {
       e.preventDefault();
-      öppna();
+      openPanel();
       return;
     }
-    const nästa = nästaIndex(e.key, aktiv, träffar.length);
-    if (nästa !== null) {
+    const next = nextIndex(e.key, active, hits.length);
+    if (next !== null) {
       e.preventDefault();
-      setAktiv(nästa);
-      rullaIn(panelRef.current, nästa);
+      setActive(next);
+      scrollRowIntoView(panelRef.current, next);
       return;
     }
     if (e.key === "Enter") {
       e.preventDefault();
-      const rad = träffar[aktiv];
-      if (rad) {
-        onValj(rad.värde);
+      const row = hits[active];
+      if (row) {
+        onSelect(row.value);
         setText("");
-        stäng(false);
-        faltRef.current?.blur();
+        close(false);
+        fieldRef.current?.blur();
       }
     }
   }
 
   return (
-    <div className="mo-picker-anchor" ref={holkRef}>
+    <div className="mo-picker-anchor" ref={anchorRef}>
       <div
         className="mo-picker"
         // Fältet inuti bär rollen; omslaget är bara ytan.
         style={{ cursor: "text" }}
-        onClick={() => faltRef.current?.focus()}
+        onClick={() => fieldRef.current?.focus()}
       >
         <input
-          ref={faltRef}
+          ref={fieldRef}
           id={id}
           type="text"
           role="combobox"
           className="mo-picker-value"
           style={{ border: 0, background: "none", outline: "none", padding: 0, font: "inherit", color: "inherit" }}
-          value={öppen ? text : (valt?.etikett ?? "")}
-          placeholder={valt ? valt.etikett : platshållare}
-          disabled={inaktiv}
-          aria-label={etikett}
-          aria-expanded={öppen}
-          data-valt={värde ?? undefined}
+          value={open ? text : (chosen?.label ?? "")}
+          placeholder={chosen ? chosen.label : placeholder}
+          disabled={disabled}
+          aria-label={label}
+          aria-expanded={open}
+          data-valt={value ?? undefined}
           aria-controls={panelId}
           aria-autocomplete="list"
-          aria-invalid={fel || undefined}
+          aria-invalid={error || undefined}
           onFocus={() => {
-            setAktiv(0);
-            öppna();
+            setActive(0);
+            openPanel();
           }}
           onChange={(e) => {
             setText(e.target.value);
-            setAktiv(0);
+            setActive(0);
           }}
-          onKeyDown={vidTangent}
+          onKeyDown={onKeyDown}
         />
-        {valt && !öppen ? (
+        {chosen && !open ? (
           <button
             type="button"
             className="mo-icon-btn"
             aria-label="Rensa valet"
             onClick={(e) => {
               e.stopPropagation();
-              onValj(null);
+              onSelect(null);
             }}
           >
-            <Icon namn="stang" storlek={14} />
+            <Icon name="close" size={14} />
           </button>
         ) : (
-          <Icon namn="sok" storlek={16} className="mo-picker-icon" />
+          <Icon name="search" size={16} className="mo-picker-icon" />
         )}
       </div>
 
-      {öppen &&
+      {open &&
         createPortal(
           <div
             ref={panelRef}
             id={panelId}
             className="mo-panel mo-picker-enter"
             role="listbox"
-            aria-label={etikett}
-            style={{ top: plats?.top ?? 0, left: plats?.left ?? 0, minWidth: plats?.width, ...panelmått(plats) }}
+            aria-label={label}
+            style={{ top: placement?.top ?? 0, left: placement?.left ?? 0, minWidth: placement?.width, ...panelSize(placement) }}
           >
-            {träffar.length === 0 ? (
-              <p className="mo-panel-empty">Inget matchar “{text}”.</p>
+            {hits.length === 0 ? (
+              <p className="mo-panel-empty">Empty matches “{text}”.</p>
             ) : (
               <>
                 <p className="mo-panel-heading">
-                  {träffar.length} {träffar.length === 1 ? "träff" : "träffar"}
+                  {hits.length} {hits.length === 1 ? "träff" : "träffar"}
                 </p>
-                {träffar.map((rad, i) => (
+                {hits.map((row, i) => (
                   <button
-                    key={rad.värde}
+                    key={row.value}
                     type="button"
                     data-rad
-                data-varde={rad.värde}
-                    data-aktiv={i === aktiv ? "true" : undefined}
+                data-varde={row.value}
+                    data-aktiv={i === active ? "true" : undefined}
                     role="option"
-                    aria-selected={rad.värde === värde}
+                    aria-selected={row.value === value}
                     className={[
                       "mo-panel-row",
-                      rad.värde === värde ? "mo-panel-row--selected" : "",
+                      row.value === value ? "mo-panel-row--selected" : "",
                     ]
                       .filter(Boolean)
                       .join(" ")}
-                    onMouseEnter={() => setAktiv(i)}
+                    onMouseEnter={() => setActive(i)}
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => {
-                      onValj(rad.värde);
+                      onSelect(row.value);
                       setText("");
-                      stäng(false);
-                      faltRef.current?.blur();
+                      close(false);
+                      fieldRef.current?.blur();
                     }}
                   >
                     <span className="mo-panel-dot" aria-hidden="true" />
-                    <span className="mo-panel-key">{rad.nyckel}</span>
-                    <span className="mo-panel-text">{rad.etikett}</span>
+                    <span className="mo-panel-key">{row.code}</span>
+                    <span className="mo-panel-text">{row.label}</span>
                   </button>
                 ))}
               </>

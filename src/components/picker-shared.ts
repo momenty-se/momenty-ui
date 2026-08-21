@@ -21,7 +21,7 @@
  */
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
-export interface Panelplats {
+export interface PanelPlacement {
   top: number;
   left: number;
   /** Knappens bredd — listpaneler är minst så breda, aldrig smalare. */
@@ -32,53 +32,53 @@ export interface Panelplats {
    * kontolistan ut precis där tangentbordet ligger: man ser att man skriver,
    * men inte vad man kan välja.
    */
-  maxHöjd: number;
+  maxHeight: number;
 }
 
-interface Valjarlage {
-  öppen: boolean;
-  öppna: () => void;
-  stäng: (återförFokus?: boolean) => void;
-  växla: () => void;
+interface PickerState {
+  open: boolean;
+  openPanel: () => void;
+  close: (restoreFocus?: boolean) => void;
+  toggle: () => void;
   /** Läggs på omslaget. Klick inuti det räknas inte som klick utanför. */
-  holkRef: React.RefObject<HTMLDivElement>;
+  anchorRef: React.RefObject<HTMLDivElement>;
   /** Läggs på knappen som öppnar. Positionen mäts från den. */
-  knappRef: React.RefObject<HTMLButtonElement>;
+  triggerRef: React.RefObject<HTMLButtonElement>;
   /** Läggs på den portalade panelen — den är inte längre barn till holken. */
   panelRef: React.RefObject<HTMLDivElement>;
   /** Var panelen ska ligga, i viewport-koordinater. `null` när den är stängd. */
-  plats: Panelplats | null;
+  placement: PanelPlacement | null;
 }
 
 /** Hur långt under knappen panelen hänger. */
-const LUFT = 6;
+const GAP = 6;
 
-export function useValjarlage(onStang?: () => void): Valjarlage {
-  const [öppen, setÖppen] = useState(false);
-  const [plats, setPlats] = useState<Panelplats | null>(null);
-  const holkRef = useRef<HTMLDivElement>(null);
-  const knappRef = useRef<HTMLButtonElement>(null);
+export function usePicker(onClose?: () => void): PickerState {
+  const [open, setOpen] = useState(false);
+  const [placement, setPlacement] = useState<PanelPlacement | null>(null);
+  const anchorRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  const stäng = useCallback(
-    (återförFokus = true) => {
-      setÖppen(false);
-      onStang?.();
+  const close = useCallback(
+    (restoreFocus = true) => {
+      setOpen(false);
+      onClose?.();
       // Utan detta hamnar fokus på <body> och nästa Tab börjar om från sidans
       // topp. Villkoret finns för klick utanför: då har användaren själv valt
       // var fokus ska hamna.
-      if (återförFokus) knappRef.current?.focus();
+      if (restoreFocus) triggerRef.current?.focus();
     },
-    [onStang],
+    [onClose],
   );
 
-  const mät = useCallback(() => {
-    const k = knappRef.current;
+  const measure = useCallback(() => {
+    const k = triggerRef.current;
     if (!k) return;
     const r = k.getBoundingClientRect();
     const panel = panelRef.current;
-    const höjd = panel?.offsetHeight ?? 0;
-    const bredd = panel?.offsetWidth ?? r.width;
+    const height = panel?.offsetHeight ?? 0;
+    const width = panel?.offsetWidth ?? r.width;
 
     // MÄT MOT DEN SYNLIGA YTAN, INTE MOT FÖNSTRET. window.innerHeight vet
     // ingenting om tangentbordet — det står kvar på hela skärmens höjd medan
@@ -87,98 +87,98 @@ export function useValjarlage(onStang?: () => void): Valjarlage {
     // fält. Panelen är position:fixed, alltså i samma koordinatsystem som
     // getBoundingClientRect, så de går att räkna ihop rakt av.
     const vv = typeof window !== "undefined" ? window.visualViewport : null;
-    const synligTopp = vv?.offsetTop ?? 0;
-    const synligHöjd = vv?.height ?? window.innerHeight;
-    const synligBredd = vv?.width ?? window.innerWidth;
-    const synligBotten = synligTopp + synligHöjd;
+    const visibleTop = vv?.offsetTop ?? 0;
+    const visibleHeight = vv?.height ?? window.innerHeight;
+    const visibleWidth = vv?.width ?? window.innerWidth;
+    const visibleBottom = visibleTop + visibleHeight;
 
     // Panelen får aldrig bli högre än det som syns. Golvet på 160 px finns för
     // att en panel som klämts till 40 px är värre än en som spiller lite: då
     // syns inte ens första raden.
-    const maxHöjd = Math.max(160, synligHöjd - LUFT * 2);
+    const maxHeight = Math.max(160, visibleHeight - GAP * 2);
 
     // Under knappen om det får plats, annars ovanför. En panel som hamnar
     // halvvägs utanför den synliga ytan går inte att använda.
-    const underPlats = synligBotten - r.bottom - LUFT;
-    const överPlats = r.top - synligTopp - LUFT;
-    const behövd = Math.min(höjd, maxHöjd);
-    const uppåt = behövd > 0 && underPlats < behövd && överPlats > underPlats;
-    const rååTop = uppåt ? r.top - behövd - LUFT : r.bottom + LUFT;
+    const spaceBelow = visibleBottom - r.bottom - GAP;
+    const spaceAbove = r.top - visibleTop - GAP;
+    const needed = Math.min(height, maxHeight);
+    const upward = needed > 0 && spaceBelow < needed && spaceAbove > spaceBelow;
+    const rawTop = upward ? r.top - needed - GAP : r.bottom + GAP;
 
     // Klipp i höjdled precis som i sidled — annars kan panelen börja ovanför
     // den synliga ytans överkant när den vänder uppåt i ett kort fönster.
-    const top = Math.max(synligTopp + 8, Math.min(rååTop, synligBotten - behövd - 8));
+    const top = Math.max(visibleTop + 8, Math.min(rawTop, visibleBottom - needed - 8));
 
     // Samma sak i sidled: håll panelen innanför den synliga ytan med 8 px
     // marginal. Math.max sist så att en panel som är bredare än skärmen
     // börjar vid kanten i stället för utanför den.
-    const left = Math.max(8, Math.min(r.left, synligBredd - bredd - 8));
+    const left = Math.max(8, Math.min(r.left, visibleWidth - width - 8));
 
-    setPlats({ top, left, width: r.width, maxHöjd });
+    setPlacement({ top, left, width: r.width, maxHeight });
   }, []);
 
   // Mät innan panelen målas, annars syns ett hopp från (0,0).
   useLayoutEffect(() => {
-    if (öppen) mät();
-  }, [öppen, mät]);
+    if (open) measure();
+  }, [open, measure]);
 
   useEffect(() => {
-    if (!öppen) return;
+    if (!open) return;
 
-    function vidTangent(e: KeyboardEvent) {
+    function onKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") {
         e.stopPropagation();
-        stäng();
+        close();
       }
     }
 
-    function vidKlick(e: PointerEvent) {
-      const mål = e.target as Node;
+    function onClick(e: PointerEvent) {
+      const target = e.target as Node;
       // Panelen ligger i body nu och är alltså inte ett barn till holken.
-      if (holkRef.current?.contains(mål) || panelRef.current?.contains(mål)) return;
-      stäng(false);
+      if (anchorRef.current?.contains(target) || panelRef.current?.contains(target)) return;
+      close(false);
     }
 
-    function vidRörelse() {
-      mät();
+    function onPointerMove() {
+      measure();
     }
 
     // `capture` på Escape: en väljare inuti en dialog ska stänga sig själv,
     // inte dialogen. Utan capture hinner dialogens egen lyssnare först.
-    document.addEventListener("keydown", vidTangent, true);
+    document.addEventListener("keydown", onKeyDown, true);
     // `pointerdown` och inte `mousedown`: touch skickar visserligen simulerade
     // musevent, men först efter en fördröjning och inte alltid — pointer är
     // det ena event som både mus, penna och finger utlöser direkt.
-    document.addEventListener("pointerdown", vidKlick);
+    document.addEventListener("pointerdown", onClick);
     // `true` fångar scroll i vilken rullande behållare som helst, inte bara
     // fönstret — en panel i en scrollande tabell ska följa med sitt fält.
-    window.addEventListener("scroll", vidRörelse, true);
-    window.addEventListener("resize", vidRörelse);
+    window.addEventListener("scroll", onPointerMove, true);
+    window.addEventListener("resize", onPointerMove);
     // Tangentbordet ändrar inte window.innerHeight, bara visualViewport. Utan
     // de här två mäts panelen om aldrig när tangentbordet fälls upp, och den
     // blir kvar under det.
     const vv = window.visualViewport;
-    vv?.addEventListener("resize", vidRörelse);
-    vv?.addEventListener("scroll", vidRörelse);
+    vv?.addEventListener("resize", onPointerMove);
+    vv?.addEventListener("scroll", onPointerMove);
     return () => {
-      document.removeEventListener("keydown", vidTangent, true);
-      document.removeEventListener("pointerdown", vidKlick);
-      window.removeEventListener("scroll", vidRörelse, true);
-      window.removeEventListener("resize", vidRörelse);
-      vv?.removeEventListener("resize", vidRörelse);
-      vv?.removeEventListener("scroll", vidRörelse);
+      document.removeEventListener("keydown", onKeyDown, true);
+      document.removeEventListener("pointerdown", onClick);
+      window.removeEventListener("scroll", onPointerMove, true);
+      window.removeEventListener("resize", onPointerMove);
+      vv?.removeEventListener("resize", onPointerMove);
+      vv?.removeEventListener("scroll", onPointerMove);
     };
-  }, [öppen, stäng, mät]);
+  }, [open, close, measure]);
 
   return {
-    öppen,
-    öppna: () => setÖppen(true),
-    stäng,
-    växla: () => setÖppen((v) => !v),
-    holkRef,
-    knappRef,
+    open,
+    openPanel: () => setOpen(true),
+    close,
+    toggle: () => setOpen((v) => !v),
+    anchorRef,
+    triggerRef,
     panelRef,
-    plats,
+    placement,
   };
 }
 
@@ -189,21 +189,21 @@ export function useValjarlage(onStang?: () => void): Valjarlage {
  * End tas med — i en kontoplan med fyrahundra rader är de skillnaden mellan
  * ett tangenttryck och fyrahundra.
  */
-export function nästaIndex(
+export function nextIndex(
   tangent: string,
-  nuvarande: number,
-  antal: number,
+  current: number,
+  count: number,
 ): number | null {
-  if (antal === 0) return null;
+  if (count === 0) return null;
   switch (tangent) {
     case "ArrowDown":
-      return nuvarande < antal - 1 ? nuvarande + 1 : 0;
+      return current < count - 1 ? current + 1 : 0;
     case "ArrowUp":
-      return nuvarande > 0 ? nuvarande - 1 : antal - 1;
+      return current > 0 ? current - 1 : count - 1;
     case "Home":
       return 0;
     case "End":
-      return antal - 1;
+      return count - 1;
     default:
       return null;
   }
@@ -215,9 +215,9 @@ export function nästaIndex(
  * `block: "nearest"` och inte `"center"`: en lista som hoppar till mitten vid
  * varje piltryck gör det omöjligt att se var man är på väg.
  */
-export function rullaIn(panel: HTMLElement | null, index: number) {
-  const rad = panel?.querySelectorAll<HTMLElement>("[data-rad]")[index];
-  rad?.scrollIntoView({ block: "nearest" });
+export function scrollRowIntoView(panel: HTMLElement | null, index: number) {
+  const row = panel?.querySelectorAll<HTMLElement>("[data-rad]")[index];
+  row?.scrollIntoView({ block: "nearest" });
 }
 
 /**
@@ -230,9 +230,9 @@ export function rullaIn(panel: HTMLElement | null, index: number) {
  * mätningen bara NEDÅT: `min(320px, var(--mo-panel-max-h))`, och regeln stannar
  * där den hör hemma.
  */
-export function panelmått(plats: Panelplats | null): React.CSSProperties {
-  if (!plats) return {};
-  return { "--mo-panel-max-h": `${Math.round(plats.maxHöjd)}px` } as React.CSSProperties;
+export function panelSize(placement: PanelPlacement | null): React.CSSProperties {
+  if (!placement) return {};
+  return { "--mo-panel-max-h": `${Math.round(placement.maxHeight)}px` } as React.CSSProperties;
 }
 
 /**
@@ -251,8 +251,8 @@ export function panelmått(plats: Panelplats | null): React.CSSProperties {
  * Propen fanns i menyns och popoverns API redan i momenty-flow men var aldrig
  * inkopplad — ett anropsställe bad om högerställning och fick vänsterställning.
  */
-export function sidled(plats: Panelplats | null, högerställd: boolean): React.CSSProperties {
-  if (!plats) return { left: 0 };
-  if (!högerställd) return { left: plats.left };
-  return { right: Math.max(0, window.innerWidth - (plats.left + plats.width)) };
+export function horizontalPlacement(placement: PanelPlacement | null, alignRight: boolean): React.CSSProperties {
+  if (!placement) return { left: 0 };
+  if (!alignRight) return { left: placement.left };
+  return { right: Math.max(0, window.innerWidth - (placement.left + placement.width)) };
 }

@@ -17,7 +17,7 @@
  * INGEN `new Date(sträng)` NÅGONSTANS I FILEN. `new Date("2026-03-12")` tolkas
  * som midnatt UTC och blir 11 mars i en västlig tidszon — en klassisk
  * endagsbugg som bara syns för vissa användare vid vissa tider. Datum plockas
- * isär med split och sätts ihop med `new Date(år, månad, dag)`, som är lokal
+ * isär med split och sätts ihop med `new Date(year, month, day)`, som är lokal
  * tid, och formateras med padStart i stället för toISOString.
  *
  * VECKAN BÖRJAR PÅ MÅNDAG. `getDay()` räknar söndag som 0, så varje uträkning
@@ -26,10 +26,10 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "./Icon";
-import { panelmått, useValjarlage } from "./picker-shared";
+import { panelSize, usePicker } from "./picker-shared";
 
-const VECKODAGAR = ["M", "T", "O", "T", "F", "L", "S"];
-const MÅNADER = [
+const WEEKDAYS = ["M", "T", "O", "T", "F", "L", "S"];
+const MONTHS = [
   "Januari", "Februari", "Mars", "April", "Maj", "Juni",
   "Juli", "Augusti", "September", "Oktober", "November", "December",
 ];
@@ -37,46 +37,47 @@ const MÅNADER = [
 /** Månadens namn. Klampar i stället för att indexera rått: månadstalet kommer
  *  från datumsträngen, och en trasig sträng ska ge fel månad — inte `undefined`
  *  mitt i en aria-label. */
-function månadsnamn(månad: number): string {
-  return MÅNADER[Math.min(11, Math.max(0, månad))] ?? "";
+function monthName(month: number): string {
+  return MONTHS[Math.min(11, Math.max(0, month))] ?? "";
 }
 
 /** `YYYY-MM-DD` → [år, månad (0-index), dag], eller null om strängen inte är ett datum. */
-function delar(iso: string): [number, number, number] | null {
+function parseIso(iso: string): [number, number, number] | null {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
   if (!m) return null;
-  const [å, må, d] = [Number(m[1]), Number(m[2]) - 1, Number(m[3])];
+  const [y, mo, d] = [Number(m[1]), Number(m[2]) - 1, Number(m[3])];
   // Kontrollen fångar 2026-02-31: Date normaliserar tyst till 3 mars.
-  const test = new Date(å, må, d);
-  if (test.getFullYear() !== å || test.getMonth() !== må || test.getDate() !== d) return null;
-  return [å, må, d];
+  const test = new Date(y, mo, d);
+  if (test.getFullYear() !== y || test.getMonth() !== mo || test.getDate() !== d) return null;
+  return [y, mo, d];
 }
 
-function tillIso(å: number, må: number, d: number): string {
-  return `${å}-${String(må + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+function toIso(y: number, mo: number, d: number): string {
+  return `${y}-${String(mo + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 }
 
 export interface DateFieldProps {
   /** `YYYY-MM-DD`, eller tom sträng för inget datum. */
-  värde: string;
-  onÄndra: (iso: string) => void;
+  value: string;
+  onChange: (iso: string) => void;
   /** Fältets röst när ingen synlig etikett står bredvid. */
-  etikett?: string;
-  platshållare?: string;
+  label?: string;
+  placeholder?: string;
   id?: string;
-  inaktiv?: boolean;
-  fel?: boolean;
+  disabled?: boolean;
+  error?: boolean;
   /** Tidigaste valbara dag, `YYYY-MM-DD`. */
-  tidigast?: string;
+  minDate?: string;
   /** Senaste valbara dag, `YYYY-MM-DD`. */
-  senast?: string;
+  maxDate?: string;
   /**
-   * Körs när fältet tappar fokus, som `onBlur` på ett `<input>`. Fem flöden
+   * Körs när fältet tappar fokus och bär värdet — DOM-eventet går till
+   * `onBlur` bredvid. Fem flöden
    * kontrollerar momslåsningen där. Fokus ligger kvar på knappen medan panelen
    * är öppen och går tillbaka dit vid val, så den fyras när man lämnar fältet
    * — inte när man bläddrar i månader.
    */
-  onLämnad?: (iso: string) => void;
+  onCommit?: (iso: string) => void;
   /**
    * Bokslutets `useFaltfynd().props` sprids på kontrollen och bär de här fyra.
    * De måste tas emot, annars tappar de tre datumfälten i Undertecknande sin
@@ -84,13 +85,13 @@ export interface DateFieldProps {
    * innehålla.
    *
    * `aria-invalid` hör inte hemma på en knapp, men den kommer hit via spreaden
-   * och betyder något. Den läses därför som `fel` och syns på kanten i stället
+   * och betyder något. Den läses därför som `error` och syns på kanten i stället
    * för att skickas vidare som attribut.
    */
   onInput?: React.FormEventHandler<HTMLElement>;
   onBlur?: React.FocusEventHandler<HTMLElement>;
   "aria-invalid"?: true;
-  "data-faltfel"?: "fel";
+  "data-field-error"?: "error";
   className?: string;
   title?: string;
   "aria-labelledby"?: string;
@@ -98,139 +99,139 @@ export interface DateFieldProps {
 }
 
 export function DateField({
-  värde,
-  onÄndra,
-  etikett,
-  platshållare = "Välj datum",
+  value,
+  onChange,
+  label,
+  placeholder = "Välj datum",
   id,
-  inaktiv = false,
-  fel = false,
-  tidigast,
-  senast,
-  onLämnad,
+  disabled = false,
+  error = false,
+  minDate,
+  maxDate,
+  onCommit,
   onInput,
   onBlur,
   "aria-invalid": ariaInvalid,
-  "data-faltfel": dataFaltfel,
+  "data-field-error": dataFieldError,
   className = "",
   title,
   "aria-labelledby": ariaLabelledby,
   "aria-describedby": ariaDescribedby,
 }: DateFieldProps) {
-  const { öppen, växla, stäng, holkRef, panelRef, plats, knappRef } = useValjarlage();
-  const valt = delar(värde);
+  const { open, toggle, close, anchorRef, panelRef, placement, triggerRef } = usePicker();
+  const chosen = parseIso(value);
 
   // Vilken månad panelen visar. Följer värdet när det ändras utifrån, men
   // låter användaren bläddra fritt medan panelen är öppen.
-  const [visad, setVisad] = useState<[number, number]>(() => {
-    if (valt) return [valt[0], valt[1]];
-    const nu = new Date();
-    return [nu.getFullYear(), nu.getMonth()];
+  const [shown, setShown] = useState<[number, number]>(() => {
+    if (chosen) return [chosen[0], chosen[1]];
+    const now = new Date();
+    return [now.getFullYear(), now.getMonth()];
   });
-  const senasteVärde = useRef(värde);
+  const lastValue = useRef(value);
   useEffect(() => {
-    if (värde !== senasteVärde.current) {
-      senasteVärde.current = värde;
-      const d = delar(värde);
-      if (d) setVisad([d[0], d[1]]);
+    if (value !== lastValue.current) {
+      lastValue.current = value;
+      const d = parseIso(value);
+      if (d) setShown([d[0], d[1]]);
     }
-  }, [värde]);
+  }, [value]);
 
-  const [år, månad] = visad;
-  const iMånaden = new Date(år, månad + 1, 0).getDate();
-  const tomma = (new Date(år, månad, 1).getDay() + 6) % 7;
+  const [year, month] = shown;
+  const inMonth = new Date(year, month + 1, 0).getDate();
+  const empty = (new Date(year, month, 1).getDay() + 6) % 7;
 
-  const idag = new Date();
-  const idagIso = tillIso(idag.getFullYear(), idag.getMonth(), idag.getDate());
+  const today = new Date();
+  const todayIso = toIso(today.getFullYear(), today.getMonth(), today.getDate());
 
-  function utanför(iso: string): boolean {
-    if (tidigast && iso < tidigast) return true;
-    if (senast && iso > senast) return true;
+  function outside(iso: string): boolean {
+    if (minDate && iso < minDate) return true;
+    if (maxDate && iso > maxDate) return true;
     return false;
   }
 
-  function stega(steg: number) {
-    const d = new Date(år, månad + steg, 1);
-    setVisad([d.getFullYear(), d.getMonth()]);
+  function step(stepSize: number) {
+    const d = new Date(year, month + stepSize, 1);
+    setShown([d.getFullYear(), d.getMonth()]);
   }
 
   return (
-    <div className={["mo-picker-anchor", className].filter(Boolean).join(" ")} ref={holkRef}>
+    <div className={["mo-picker-anchor", className].filter(Boolean).join(" ")} ref={anchorRef}>
       <button
         type="button"
         id={id}
-        ref={knappRef}
-        className={["mo-picker", fel || ariaInvalid ? "mo-picker--invalid" : ""].filter(Boolean).join(" ")}
-        onClick={växla}
+        ref={triggerRef}
+        className={["mo-picker", error || ariaInvalid ? "mo-picker--invalid" : ""].filter(Boolean).join(" ")}
+        onClick={toggle}
         onBlur={(e) => {
-          onLämnad?.(värde);
+          onCommit?.(value);
           onBlur?.(e);
         }}
-        data-faltfel={dataFaltfel}
-        data-valt={värde}
-        disabled={inaktiv}
+        data-field-error={dataFieldError}
+        data-valt={value}
+        disabled={disabled}
         title={title}
         aria-haspopup="dialog"
-        aria-expanded={öppen}
-        aria-label={etikett}
+        aria-expanded={open}
+        aria-label={label}
         aria-labelledby={ariaLabelledby}
         aria-describedby={ariaDescribedby}
       >
         <span
-          className={["mo-picker-value tabular-nums", valt ? "" : "mo-picker-value--empty"]
+          className={["mo-picker-value tabular-nums", chosen ? "" : "mo-picker-value--empty"]
             .filter(Boolean)
             .join(" ")}
         >
-          {valt ? värde : platshållare}
+          {chosen ? value : placeholder}
         </span>
-        <Icon namn="deadline" storlek={16} className="mo-picker-icon" />
+        <Icon name="deadline" size={16} className="mo-picker-icon" />
       </button>
 
-      {öppen &&
+      {open &&
         createPortal(
           <div
             ref={panelRef}
             className="mo-calendar mo-picker-enter"
             role="dialog"
-            aria-label={etikett ?? "Välj datum"}
-            style={{ top: plats?.top ?? 0, left: plats?.left ?? 0, ...panelmått(plats) }}
+            aria-label={label ?? "Välj datum"}
+            style={{ top: placement?.top ?? 0, left: placement?.left ?? 0, ...panelSize(placement) }}
           >
             <div className="mo-calendar-header">
               <button
                 type="button"
                 className="mo-calendar-step"
-                onClick={() => stega(-1)}
+                onClick={() => step(-1)}
                 aria-label="Föregående månad"
               >
-                <Icon namn="vidare" vrid={180} storlek={15} streck={2.2} />
+                <Icon name="chevron" rotate={180} size={15} stroke={2.2} />
               </button>
               <span className="mo-calendar-month" aria-live="polite">
-                {månadsnamn(månad)} {år}
+                {monthName(month)} {year}
               </span>
               <button
                 type="button"
                 className="mo-calendar-step"
-                onClick={() => stega(1)}
+                onClick={() => step(1)}
                 aria-label="Nästa månad"
               >
-                <Icon namn="vidare" storlek={15} streck={2.2} />
+                <Icon name="chevron" size={15} stroke={2.2} />
               </button>
             </div>
 
             <div className="mo-calendar-grid">
-              {VECKODAGAR.map((d, i) => (
+              {WEEKDAYS.map((d, i) => (
                 // Namnet räcker inte som nyckel: T och T står två gånger.
                 <span key={`${d}-${i}`} className="mo-calendar-weekday" aria-hidden="true">
                   {d}
                 </span>
               ))}
-              {Array.from({ length: tomma }, (_, i) => (
+              {Array.from({ length: empty }, (_, i) => (
                 <span key={`tom-${i}`} />
               ))}
-              {Array.from({ length: iMånaden }, (_, i) => {
-                const dag = i + 1;
-                const iso = tillIso(år, månad, dag);
-                const spärrad = utanför(iso);
+              {Array.from({ length: inMonth }, (_, i) => {
+                const day = i + 1;
+                const iso = toIso(year, month, day);
+                const blocked = outside(iso);
                 return (
                   <button
                     key={iso}
@@ -239,23 +240,23 @@ export function DateField({
                     // peka ut den. Utan det går en dag bara att hitta på sin siffra,
                     // och siffran 3 finns i varje månad.
                     data-dag={iso}
-                    disabled={spärrad}
-                    aria-pressed={iso === värde}
-                    aria-label={`${dag} ${månadsnamn(månad).toLowerCase()} ${år}`}
+                    disabled={blocked}
+                    aria-pressed={iso === value}
+                    aria-label={`${day} ${monthName(month).toLowerCase()} ${year}`}
                     className={[
                       "mo-calendar-day",
-                      iso === värde ? "mo-calendar-day--selected" : "",
-                      iso === idagIso && iso !== värde ? "mo-calendar-day--today" : "",
+                      iso === value ? "mo-calendar-day--selected" : "",
+                      iso === todayIso && iso !== value ? "mo-calendar-day--today" : "",
                     ]
                       .filter(Boolean)
                       .join(" ")}
                     onClick={(e) => {
-                      onÄndra(iso);
+                      onChange(iso);
                       onInput?.(e);
-                      stäng();
+                      close();
                     }}
                   >
-                    {dag}
+                    {day}
                   </button>
                 );
               })}

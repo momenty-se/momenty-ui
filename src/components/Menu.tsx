@@ -18,111 +18,111 @@
  */
 import { useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { Icon, type IconNamn } from "./Icon";
-import { nästaIndex, panelmått, rullaIn, sidled, useValjarlage } from "./picker-shared";
+import { Icon, type IconName } from "./Icon";
+import { nextIndex, panelSize, scrollRowIntoView, horizontalPlacement, usePicker } from "./picker-shared";
 
-export interface MenyPost {
-  etikett: string;
-  onValj: () => void;
-  ikon?: IconNamn;
-  inaktiv?: boolean;
+export interface MenuItem {
+  label: string;
+  onSelect: () => void;
+  icon?: IconName;
+  disabled?: boolean;
   /** Läggs sist, under en linje. Bär gult — aldrig rött. */
-  destruktiv?: boolean;
+  destructive?: boolean;
 }
 
 export interface MenuProps {
-  poster: MenyPost[];
+  items: MenuItem[];
   /** Knappens röst. "Fler val för faktura 2026-014", inte "Meny". */
-  etikett: string;
+  label: string;
   /** Egen knapp i stället för de tre prickarna. */
-  knapp?: ReactNode;
+  trigger?: ReactNode;
   /** Panelen hänger i högerkanten. Rätt när knappen står sist i en rad. */
-  högerställd?: boolean;
+  alignRight?: boolean;
 }
 
-export function Menu({ poster, etikett, knapp, högerställd = false }: MenuProps) {
-  const { öppen, växla, stäng, holkRef, panelRef, plats, knappRef } = useValjarlage();
-  const [aktiv, setAktiv] = useState(0);
+export function Menu({ items, label, trigger, alignRight = false }: MenuProps) {
+  const { open, toggle, close, anchorRef, panelRef, placement, triggerRef } = usePicker();
+  const [active, setActive] = useState(0);
 
   // Den destruktiva raden hamnar sist oavsett hur anropsstället sorterat.
-  const ordnade = [...poster.filter((p) => !p.destruktiv), ...poster.filter((p) => p.destruktiv)];
-  const förstaDestruktiva = ordnade.findIndex((p) => p.destruktiv);
+  const ordered = [...items.filter((p) => !p.destructive), ...items.filter((p) => p.destructive)];
+  const firstDestructive = ordered.findIndex((p) => p.destructive);
 
-  function vidTangent(e: React.KeyboardEvent) {
-    if (!öppen) {
+  function onKeyDown(e: React.KeyboardEvent) {
+    if (!open) {
       if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") {
         e.preventDefault();
-        setAktiv(0);
-        växla();
+        setActive(0);
+        toggle();
       }
       return;
     }
-    const nästa = nästaIndex(e.key, aktiv, ordnade.length);
-    if (nästa !== null) {
+    const next = nextIndex(e.key, active, ordered.length);
+    if (next !== null) {
       e.preventDefault();
-      setAktiv(nästa);
-      rullaIn(panelRef.current, nästa);
+      setActive(next);
+      scrollRowIntoView(panelRef.current, next);
       return;
     }
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      const post = ordnade[aktiv];
-      if (post && !post.inaktiv) {
-        stäng();
-        post.onValj();
+      const post = ordered[active];
+      if (post && !post.disabled) {
+        close();
+        post.onSelect();
       }
     }
   }
 
   return (
-    <div className="mo-picker-anchor" ref={holkRef}>
+    <div className="mo-picker-anchor" ref={anchorRef}>
       <button
         type="button"
-        ref={knappRef}
-        className={knapp ? "mo-btn mo-btn--secondary" : "mo-icon-btn"}
-        onClick={växla}
-        onKeyDown={vidTangent}
+        ref={triggerRef}
+        className={trigger ? "mo-btn mo-btn--secondary" : "mo-icon-btn"}
+        onClick={toggle}
+        onKeyDown={onKeyDown}
         aria-haspopup="menu"
-        aria-expanded={öppen}
-        aria-label={knapp ? undefined : etikett}
+        aria-expanded={open}
+        aria-label={trigger ? undefined : label}
       >
-        {knapp ?? <Icon namn="mer" storlek={16} />}
+        {trigger ?? <Icon name="more" size={16} />}
       </button>
 
-      {öppen &&
+      {open &&
         createPortal(
           <div
             ref={panelRef}
             className="mo-panel mo-menu mo-picker-enter"
             role="menu"
-            aria-label={etikett}
-            style={{ top: plats?.top ?? 0, ...sidled(plats, högerställd), ...panelmått(plats) }}
+            aria-label={label}
+            style={{ top: placement?.top ?? 0, ...horizontalPlacement(placement, alignRight), ...panelSize(placement) }}
           >
-            {ordnade.map((post, i) => (
-              <div key={post.etikett} style={{ display: "contents" }}>
-                {i === förstaDestruktiva && i > 0 && (
+            {ordered.map((post, i) => (
+              <div key={post.label} style={{ display: "contents" }}>
+                {i === firstDestructive && i > 0 && (
                   <span className="mo-menu-divider" aria-hidden="true" />
                 )}
                 <button
                   type="button"
                   data-rad
-                  data-aktiv={i === aktiv ? "true" : undefined}
+                  data-aktiv={i === active ? "true" : undefined}
                   role="menuitem"
-                  disabled={post.inaktiv}
+                  disabled={post.disabled}
                   className={[
                     "mo-panel-row",
-                    post.destruktiv ? "mo-panel-row--destructive" : "",
+                    post.destructive ? "mo-panel-row--destructive" : "",
                   ]
                     .filter(Boolean)
                     .join(" ")}
-                  onMouseEnter={() => setAktiv(i)}
+                  onMouseEnter={() => setActive(i)}
                   onClick={() => {
-                    stäng();
-                    post.onValj();
+                    close();
+                    post.onSelect();
                   }}
                 >
-                  {post.ikon ? <Icon namn={post.ikon} storlek={15} /> : null}
-                  <span className="mo-panel-text">{post.etikett}</span>
+                  {post.icon ? <Icon name={post.icon} size={15} /> : null}
+                  <span className="mo-panel-text">{post.label}</span>
                 </button>
               </div>
             ))}

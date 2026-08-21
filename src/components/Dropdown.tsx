@@ -19,132 +19,132 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "./Icon";
-import { nästaIndex, panelmått, rullaIn, useValjarlage } from "./picker-shared";
+import { nextIndex, panelSize, scrollRowIntoView, usePicker } from "./picker-shared";
 
-export interface DropdownVal<T extends string> {
-  värde: T;
-  etikett: string;
+export interface DropdownOption<T extends string> {
+  value: T;
+  label: string;
   /** Andra raden i posten — kontots namn, planens pris. */
-  hjälp?: string;
-  inaktiv?: boolean;
+  hint?: string;
+  disabled?: boolean;
 }
 
 export interface DropdownProps<T extends string> {
-  värde: T | null;
-  val: DropdownVal<T>[];
-  onValj: (värde: T) => void;
+  value: T | null;
+  options: DropdownOption<T>[];
+  onSelect: (value: T) => void;
   /** Vad fältet säger när inget är valt. */
-  platshållare?: string;
+  placeholder?: string;
   /** Fältets röst för skärmläsare när ingen synlig etikett finns bredvid. */
-  etikett?: string;
+  label?: string;
   id?: string;
-  inaktiv?: boolean;
-  fel?: boolean;
+  disabled?: boolean;
+  error?: boolean;
 }
 
 export function Dropdown<T extends string>({
-  värde,
-  val,
-  onValj,
-  platshållare = "Välj …",
-  etikett,
+  value,
+  options,
+  onSelect,
+  placeholder = "Välj …",
+  label,
   id,
-  inaktiv = false,
-  fel = false,
+  disabled = false,
+  error = false,
 }: DropdownProps<T>) {
-  const { öppen, växla, stäng, holkRef, panelRef, plats, knappRef } = useValjarlage();
-  const [aktiv, setAktiv] = useState(0);
+  const { open, toggle, close, anchorRef, panelRef, placement, triggerRef } = usePicker();
+  const [active, setActive] = useState(0);
 
-  const valt = val.find((v) => v.värde === värde) ?? null;
+  const chosen = options.find((v) => v.value === value) ?? null;
 
-  function vidTangent(e: React.KeyboardEvent) {
-    if (!öppen) {
+  function onKeyDown(e: React.KeyboardEvent) {
+    if (!open) {
       if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") {
         e.preventDefault();
-        setAktiv(Math.max(0, val.findIndex((v) => v.värde === värde)));
-        växla();
+        setActive(Math.max(0, options.findIndex((v) => v.value === value)));
+        toggle();
       }
       return;
     }
-    const nästa = nästaIndex(e.key, aktiv, val.length);
-    if (nästa !== null) {
+    const next = nextIndex(e.key, active, options.length);
+    if (next !== null) {
       e.preventDefault();
-      setAktiv(nästa);
-      rullaIn(panelRef.current, nästa);
+      setActive(next);
+      scrollRowIntoView(panelRef.current, next);
       return;
     }
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      const rad = val[aktiv];
-      if (rad && !rad.inaktiv) {
-        onValj(rad.värde);
-        stäng();
+      const row = options[active];
+      if (row && !row.disabled) {
+        onSelect(row.value);
+        close();
       }
     }
   }
 
   return (
-    <div className="mo-picker-anchor" ref={holkRef}>
+    <div className="mo-picker-anchor" ref={anchorRef}>
       <button
         type="button"
         id={id}
-        ref={knappRef}
-        className={["mo-picker", fel ? "mo-picker--invalid" : ""].filter(Boolean).join(" ")}
-        onClick={växla}
-        onKeyDown={vidTangent}
-        disabled={inaktiv}
-        data-valt={värde ?? undefined}
+        ref={triggerRef}
+        className={["mo-picker", error ? "mo-picker--invalid" : ""].filter(Boolean).join(" ")}
+        onClick={toggle}
+        onKeyDown={onKeyDown}
+        disabled={disabled}
+        data-valt={value ?? undefined}
         aria-haspopup="listbox"
-        aria-expanded={öppen}
-        aria-label={etikett}
+        aria-expanded={open}
+        aria-label={label}
       >
         <span
-          className={["mo-picker-value", valt ? "" : "mo-picker-value--empty"]
+          className={["mo-picker-value", chosen ? "" : "mo-picker-value--empty"]
             .filter(Boolean)
             .join(" ")}
         >
-          {valt?.etikett ?? platshållare}
+          {chosen?.label ?? placeholder}
         </span>
-        <Icon namn="vidare" vrid={öppen ? 270 : 90} storlek={16} className="mo-picker-icon" />
+        <Icon name="chevron" rotate={open ? 270 : 90} size={16} className="mo-picker-icon" />
       </button>
 
-      {öppen &&
+      {open &&
         createPortal(
           <div
             ref={panelRef}
             className="mo-panel mo-picker-enter"
             role="listbox"
-            aria-label={etikett}
-            style={{ top: plats?.top ?? 0, left: plats?.left ?? 0, minWidth: plats?.width, ...panelmått(plats) }}
+            aria-label={label}
+            style={{ top: placement?.top ?? 0, left: placement?.left ?? 0, minWidth: placement?.width, ...panelSize(placement) }}
           >
-            {val.length === 0 && <p className="mo-panel-empty">Inget att välja på.</p>}
-            {val.map((rad, i) => (
+            {options.length === 0 && <p className="mo-panel-empty">Empty att choose på.</p>}
+            {options.map((row, i) => (
               <button
-                key={rad.värde}
+                key={row.value}
                 type="button"
                 data-rad
-                data-varde={rad.värde}
-                data-aktiv={i === aktiv ? "true" : undefined}
+                data-varde={row.value}
+                data-aktiv={i === active ? "true" : undefined}
                 role="option"
-                aria-selected={rad.värde === värde}
-                disabled={rad.inaktiv}
+                aria-selected={row.value === value}
+                disabled={row.disabled}
                 className={[
                   "mo-panel-row",
-                  rad.värde === värde ? "mo-panel-row--selected" : "",
+                  row.value === value ? "mo-panel-row--selected" : "",
                 ]
                   .filter(Boolean)
                   .join(" ")}
-                onMouseEnter={() => setAktiv(i)}
+                onMouseEnter={() => setActive(i)}
                 onClick={() => {
-                  onValj(rad.värde);
-                  stäng();
+                  onSelect(row.value);
+                  close();
                 }}
               >
                 <span className="mo-panel-dot" aria-hidden="true" />
                 <span className="mo-panel-text">
-                  {rad.etikett}
-                  {rad.hjälp ? (
-                    <span className="mo-panel-hint">{rad.hjälp}</span>
+                  {row.label}
+                  {row.hint ? (
+                    <span className="mo-panel-hint">{row.hint}</span>
                   ) : null}
                 </span>
               </button>

@@ -18,29 +18,29 @@
  * sig läsa exakt `e.target.value` och ingenting annat ur eventet; det är
  * verifierat, inte antaget, och propstypen nedan säger nu just det.
  *
- * FÖR NY KOD: `Dropdown` är trevligare. Den tar en typad `val`-array i stället
+ * FÖR NY KOD: `Dropdown` är trevligare. Den tar en typad `options`-array i stället
  * för barn, så ett stavfel i ett värde blir ett typfel. Den här finns för att
  * de sextiosju inte skulle behöva skrivas om.
  */
 import { Children, isValidElement, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "./Icon";
-import { nästaIndex, panelmått, rullaIn, useValjarlage } from "./picker-shared";
+import { nextIndex, panelSize, scrollRowIntoView, usePicker } from "./picker-shared";
 import { useState } from "react";
 
-interface Rad {
-  slag: "val";
-  värde: string;
-  etikett: string;
-  inaktiv?: boolean;
+interface Row {
+  sort: "options";
+  value: string;
+  label: string;
+  disabled?: boolean;
 }
 
-interface Rubrik {
-  slag: "rubrik";
-  etikett: string;
+interface Heading {
+  sort: "rubrik";
+  label: string;
 }
 
-type Post = Rad | Rubrik;
+type Item = Row | Heading;
 
 /**
  * Plockar isär `<option>`- och `<optgroup>`-barnen.
@@ -48,25 +48,25 @@ type Post = Rad | Rubrik;
  * `Children.toArray` plattar ut fragment och arrayer, vilket är det vanliga
  * fallet här: de flesta anropsställen bygger sina alternativ med `.map()`.
  */
-function läsBarn(children: ReactNode): Post[] {
-  const ut: Post[] = [];
-  for (const barn of Children.toArray(children)) {
-    if (!isValidElement(barn)) continue;
+function readChildren(children: ReactNode): Item[] {
+  const ut: Item[] = [];
+  for (const child of Children.toArray(children)) {
+    if (!isValidElement(child)) continue;
 
-    if (barn.type === "optgroup") {
-      const p = barn.props as { label?: string; children?: ReactNode };
-      if (p.label) ut.push({ slag: "rubrik", etikett: p.label });
-      ut.push(...läsBarn(p.children));
+    if (child.type === "optgroup") {
+      const p = child.props as { label?: string; children?: ReactNode };
+      if (p.label) ut.push({ sort: "rubrik", label: p.label });
+      ut.push(...readChildren(p.children));
       continue;
     }
 
-    if (barn.type === "option") {
-      const p = barn.props as { value?: string | number; children?: ReactNode; disabled?: boolean };
+    if (child.type === "option") {
+      const p = child.props as { value?: string | number; children?: ReactNode; disabled?: boolean };
       ut.push({
-        slag: "val",
-        värde: String(p.value ?? ""),
-        etikett: Children.toArray(p.children).join(""),
-        inaktiv: p.disabled,
+        sort: "options",
+        value: String(p.value ?? ""),
+        label: Children.toArray(p.children).join(""),
+        disabled: p.disabled,
       });
     }
   }
@@ -112,119 +112,119 @@ export function Select({
   "aria-label": ariaLabel,
   "aria-describedby": ariaDescribedby,
 }: SelectProps) {
-  const { öppen, växla, stäng, holkRef, panelRef, plats, knappRef } = useValjarlage();
-  const [aktiv, setAktiv] = useState(0);
+  const { open, toggle, close, anchorRef, panelRef, placement, triggerRef } = usePicker();
+  const [active, setActive] = useState(0);
 
-  const poster = läsBarn(children);
-  const valbara = poster.filter((p): p is Rad => p.slag === "val");
-  const nuvarande = value === undefined ? "" : String(value);
-  const valt = valbara.find((v) => v.värde === nuvarande) ?? null;
+  const items = readChildren(children);
+  const selectable = items.filter((p): p is Row => p.sort === "options");
+  const current = value === undefined ? "" : String(value);
+  const chosen = selectable.find((v) => v.value === current) ?? null;
 
-  function välj(rad: Rad) {
-    onChange?.({ target: { value: rad.värde } });
-    stäng();
+  function select(row: Row) {
+    onChange?.({ target: { value: row.value } });
+    close();
   }
 
-  function vidTangent(e: React.KeyboardEvent) {
-    if (!öppen) {
+  function onKeyDown(e: React.KeyboardEvent) {
+    if (!open) {
       if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") {
         e.preventDefault();
-        setAktiv(Math.max(0, valbara.findIndex((v) => v.värde === nuvarande)));
-        växla();
+        setActive(Math.max(0, selectable.findIndex((v) => v.value === current)));
+        toggle();
       }
       return;
     }
-    const nästa = nästaIndex(e.key, aktiv, valbara.length);
-    if (nästa !== null) {
+    const next = nextIndex(e.key, active, selectable.length);
+    if (next !== null) {
       e.preventDefault();
-      setAktiv(nästa);
-      rullaIn(panelRef.current, nästa);
+      setActive(next);
+      scrollRowIntoView(panelRef.current, next);
       return;
     }
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      const rad = valbara[aktiv];
-      if (rad && !rad.inaktiv) välj(rad);
+      const row = selectable[active];
+      if (row && !row.disabled) select(row);
     }
   }
 
   // Rubrikerna bryter numreringen: raden vet sitt index bland de VALBARA, inte
   // bland posterna. Utan det pekar piltangenten på fel rad så fort en optgroup
   // finns i listan.
-  let iValbara = -1;
+  let inOptions = -1;
 
   return (
     <div
       className={["mo-picker-anchor", fullWidth ? "w-full" : "", className].filter(Boolean).join(" ")}
-      ref={holkRef}
+      ref={anchorRef}
     >
       <button
         type="button"
         id={id}
-        ref={knappRef}
+        ref={triggerRef}
         className={["mo-picker", error ? "mo-picker--invalid" : ""].filter(Boolean).join(" ")}
-        onClick={växla}
-        onKeyDown={vidTangent}
+        onClick={toggle}
+        onKeyDown={onKeyDown}
         disabled={disabled}
         autoFocus={autoFocus}
-        data-valt={nuvarande}
+        data-valt={current}
         aria-haspopup="listbox"
-        aria-expanded={öppen}
+        aria-expanded={open}
         aria-required={required || undefined}
         aria-label={ariaLabel}
         aria-describedby={ariaDescribedby}
       >
         <span
-          className={["mo-picker-value", valt ? "" : "mo-picker-value--empty"]
+          className={["mo-picker-value", chosen ? "" : "mo-picker-value--empty"]
             .filter(Boolean)
             .join(" ")}
         >
-          {valt?.etikett || "Välj …"}
+          {chosen?.label || "Välj …"}
         </span>
-        <Icon namn="vidare" vrid={öppen ? 270 : 90} storlek={16} className="mo-picker-icon" />
+        <Icon name="chevron" rotate={open ? 270 : 90} size={16} className="mo-picker-icon" />
       </button>
 
-      {öppen &&
+      {open &&
         createPortal(
           <div
             ref={panelRef}
             className="mo-panel mo-picker-enter"
             role="listbox"
             aria-label={ariaLabel}
-            style={{ top: plats?.top ?? 0, left: plats?.left ?? 0, minWidth: plats?.width, ...panelmått(plats) }}
+            style={{ top: placement?.top ?? 0, left: placement?.left ?? 0, minWidth: placement?.width, ...panelSize(placement) }}
           >
-            {poster.length === 0 && <p className="mo-panel-empty">Inget att välja på.</p>}
-            {poster.map((post, i) => {
-              if (post.slag === "rubrik") {
+            {items.length === 0 && <p className="mo-panel-empty">Empty att choose på.</p>}
+            {items.map((post, i) => {
+              if (post.sort === "rubrik") {
                 return (
                   <p key={`r-${i}`} className="mo-panel-heading">
-                    {post.etikett}
+                    {post.label}
                   </p>
                 );
               }
-              iValbara += 1;
-              const index = iValbara;
+              inOptions += 1;
+              const index = inOptions;
               return (
                 <button
-                  key={`${post.värde}-${i}`}
+                  key={`${post.value}-${i}`}
                   type="button"
                   data-rad
-                  data-varde={post.värde}
-                  data-aktiv={index === aktiv ? "true" : undefined}
+                  data-varde={post.value}
+                  data-aktiv={index === active ? "true" : undefined}
                   role="option"
-                  aria-selected={post.värde === nuvarande}
-                  disabled={post.inaktiv}
+                  aria-selected={post.value === current}
+                  disabled={post.disabled}
                   className={[
                     "mo-panel-row",
-                    post.värde === nuvarande ? "mo-panel-row--selected" : "",
+                    post.value === current ? "mo-panel-row--selected" : "",
                   ]
                     .filter(Boolean)
                     .join(" ")}
-                  onMouseEnter={() => setAktiv(index)}
-                  onClick={() => välj(post)}
+                  onMouseEnter={() => setActive(index)}
+                  onClick={() => select(post)}
                 >
                   <span className="mo-panel-dot" aria-hidden="true" />
-                  <span className="mo-panel-text">{post.etikett}</span>
+                  <span className="mo-panel-text">{post.label}</span>
                 </button>
               );
             })}
