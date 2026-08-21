@@ -112,6 +112,16 @@
   --mo-radius-panel-row: 14px; /* flow-r-menu-item */
   --mo-radius-menu: 18px;
   --mo-radius-menu-row: 12px;
+  /* Kortet och dialogen. Den inre radien är mindre än den yttre, så att ett
+     kort inuti ett kort inte får en tjockare kurva än sitt hölje. */
+  --mo-radius-card: 26px;
+  --mo-radius-card-inner: 24px;
+
+  /* Tangentbordets höjd på telefon. Sätts av appen — paketet kan inte mäta
+     den, eftersom det kräver en visualViewport-lyssnare som hör hemma i
+     appens egen livscykel. 0 när inget tangentbord är uppe, vilket är rätt
+     värde på skrivbordet och rätt förval om appen inte mäter alls. */
+  --mo-keyboard-h: 0px;
 
   /* ── Typografi ──────────────────────────────────────────────────────
      Paketet sätter aldrig en font-family på en komponent — allt ärver från

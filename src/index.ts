@@ -16,6 +16,7 @@
 export { Button, type ButtonProps, type ButtonVariant } from "./components/Button";
 export { Combobox, type ComboboxProps } from "./components/Combobox";
 export { DateField, type DateFieldProps } from "./components/DateField";
+export { Dialog, type DialogProps } from "./components/Dialog";
 export { Dropdown, type DropdownProps } from "./components/Dropdown";
 export { Field, type FieldProps } from "./components/Field";
 export { Icon, iconStroke, ICON_LABELS, ICON_GROUPS, type IconName } from "./components/Icon";

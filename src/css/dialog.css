@@ -1,0 +1,256 @@
+/* Dialogen — @momenty/ui.
+ *
+ * Härstammar ur momenty-flows `src/styles/flow/dialog.css`, generaliserad till
+ * kontraktets `--mo-*`. Laddas efter `@tailwind utilities`, se css/button.css.
+ *
+ * ORIGINALETS INLEDNING:
+ * Dialogen — Flow 2026 §09, §04, §28.
+ *
+ * Den största luckan i appen: 42 egna dialoger, ingen komponent. Anatomin är
+ * densamma i alla — överlägg, panel, serifrubrik, brödtext, fot — men måtten,
+ * radierna och knapparnas ordning skiljde sig i var och en.
+ *
+ * TRE BREDDER, INTE FLER. sm är en bekräftelse (rubrik, en mening, två
+ * knappar), md är standardvärdet för ett formulär, lg är granskning med
+ * kvittobild bredvid.
+ *
+ * Under 640 px glider panelen upp underifrån i stället för att stå mitt på
+ * skärmen. Det är samma ark som kantpanelen använder (§28) — en dialog och en
+ * panel från kanten är samma sak på en telefon.
+ */
+
+/* HÖJDLEDEN, HELA STEGEN. Appen bygger upp till 90: kantpanelen och menyn
+   ligger på 90, chattens överlägg på 80, ljuslådan på 70, flödesskalet på 50.
+   En dialog öppnas ovanpå vilken som helst av dem och måste därför ligga över
+   allihop — 50 räckte så länge dialogen var ett syskon i DOM-ordningen, men
+   det är en tur som tar slut den dag någon flyttar en rad.
+
+   Återkopplingen ligger i sin tur över dialogen (110): ett kvitto på det man
+   just gjorde ska synas även när dialogen står kvar. */
+.mo-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 26px;
+  /* Bakgrunden dämpas med bläck på 28 %, aldrig med oskärpa: bakom dialogen
+     står ofta ett kvitto eller en tabell som användaren jämför mot. */
+  background: rgba(24, 20, 16, 0.28);
+}
+
+.mo-dialog {
+  /* Foten och andra delar inuti dialogen ska mäta sig mot DIALOGEN, inte mot
+     skärmen: en sm-dialog är 420 px bred oavsett om skärmen är 1440 eller
+     390, och en mediafråga kan inte se skillnad. Kontrollerat före
+     införandet: inget position:fixed-element bor inuti .mo-dialog —
+     .mo-overlay är förälder och inte ättling, och väljarpanelerna
+     portaleras till document.body. `inline-size` innesluter bara i sidled, så
+     max-height nedan räknas fortfarande mot viewporten. */
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-height: calc(100dvh - 52px);
+  overflow-y: auto;
+  padding: 26px;
+  border: 1px solid var(--mo-panel-line);
+  border-radius: var(--mo-radius-card-inner);
+  background: var(--mo-menu-bg);
+  box-shadow: var(--mo-shadow-panel);
+  backdrop-filter: var(--mo-panel-blur);
+  -webkit-backdrop-filter: var(--mo-panel-blur);
+}
+
+.mo-dialog--sm {
+  max-width: 420px;
+}
+.mo-dialog--md {
+  max-width: 560px;
+}
+.mo-dialog--lg {
+  max-width: 720px;
+}
+
+/* --- Telefonen: arket kommer underifrån -------------------------------- */
+/* Arket är fastnaglat vid underkanten, alltså precis där tangentbordet fälls
+   upp. I "Stämmer det här?" ligger fälten för belopp, moms och datum en bit
+   ned, och trycker man i dem täcker tangentbordet både fältet och
+   "Bokför kvittot" längst ned — man får blint rulla arket medan tangentbordet
+   är uppe. --mo-keyboard-h kommer från useTangentbordshojd och är 0 så
+   snart inget tangentbord är uppe, så regeln kostar ingenting annars. */
+.mo-overlay {
+  padding-bottom: var(--mo-keyboard-h, 0px);
+}
+
+@media (max-width: 639px) {
+  .mo-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .mo-dialog {
+    max-width: none;
+    max-height: 88dvh;
+    /* Rundat bara uppåt — arket sitter fast i underkanten. */
+    border-radius: var(--mo-radius-card) var(--mo-radius-card) 0 0;
+    border-bottom: none;
+    padding-bottom: max(26px, env(safe-area-inset-bottom));
+  }
+}
+
+/* --- Hur dialogen kommer in --------------------------------------------
+   220 ms och `cubic-bezier(.16,1,.3,1)` — designsystemets rad "Meny in" (§5).
+   Den raden framför "vy in" (400 ms), eftersom en dialog inte är en plats man
+   navigerar till utan en tillfällig yta som svarar på något man just gjorde.
+
+   Den bar först kantpanelens `translateX(105%)`, en annan sak. En
+   centrerad ruta som glider in från skärmens högerkant läser som att den hör
+   hemma där ute och råkade hamna i mitten.
+
+   PÅ TELEFONEN KOMMER ARKET UNDERIFRÅN, vilket är vad stycket ovan alltid
+   lovat och vad ytan visar: den sitter fast i underkanten och är rundad bara
+   uppåt. Rörelsen sa något annat. */
+@keyframes moDialogEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes moSheetEnter {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.mo-dialog-enter {
+  animation: moDialogEnter 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (max-width: 639px) {
+  .mo-dialog-enter {
+    animation-name: moSheetEnter;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mo-dialog-enter {
+    animation: none;
+  }
+}
+
+/* --- Huvudet ----------------------------------------------------------- */
+.mo-dialog-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.mo-dialog-title {
+  /* Serif, och därmed aldrig under 26 px. Rubriken gör dialogen till ett
+     besked i stället för ett formulär som dykt upp. */
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 30px;
+  line-height: 1.06;
+  letter-spacing: -0.022em;
+  color: var(--mo-text);
+  margin: 0;
+}
+
+@media (max-width: 639px) {
+  .mo-dialog-title {
+    font-size: 26px;
+  }
+}
+
+.mo-dialog-body {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--mo-text-muted);
+  margin: 0;
+  max-width: 62ch;
+  text-wrap: pretty;
+}
+
+/* --- Foten ------------------------------------------------------------
+   Primärhandlingen längst till höger. Ordningen är inte smak: den som läser
+   vänster till höger möter avbryt först och bekräftelsen sist, vilket är
+   samma ordning som beslutet fattas i. */
+.mo-dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  margin-top: 2px;
+  padding-top: 18px;
+  border-top: 1px solid var(--mo-line);
+}
+
+/* 26rem (416 px) är precis under sm-dialogens 420, så foten staplar i en smal
+   dialog också på ett skrivbord — där knapparna annars spillde ut över kanten
+   utan att någon mediafråga kunde se det. */
+@container (max-width: 26rem) {
+  .mo-dialog-footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .mo-dialog-footer > .mo-btn {
+    width: 100%;
+  }
+}
+
+/* Foten kan bära något till vänster — en destruktiv utlösare, en räknare. */
+.mo-dialog-footer-start {
+  margin-right: auto;
+}
+
+/* --- Draghandtaget på telefon ------------------------------------------ */
+.mo-dialog-handle {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  .mo-dialog-handle {
+    display: block;
+    width: 38px;
+    height: 4px;
+    margin: -12px auto 2px;
+    border-radius: var(--mo-radius-pill);
+    background: var(--mo-line-strong);
+  }
+}
+
+/* --- Överlägget tonar in -----------------------------------------------
+   Låg i Flows globals.css och inte i dialogfilen, eftersom kantpanelen delade
+   den. Här hör den hemma hos det den animerar. */
+@keyframes moOverlayEnter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.mo-overlay-enter {
+  animation: moOverlayEnter 300ms ease-in-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mo-overlay-enter {
+    animation: none;
+  }
+}

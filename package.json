@@ -1,6 +1,6 @@
 {
   "name": "@momenty/ui",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "description": "Momentys gemensamma komponentbibliotek — formen bor här, färgen i appen.",
   "repository": {
@@ -20,7 +20,8 @@
     "./css/button.css": "./src/css/button.css",
     "./css/field.css": "./src/css/field.css",
     "./css/*.css": "./src/css/*.css",
-    "./css/picker.css": "./src/css/picker.css"
+    "./css/picker.css": "./src/css/picker.css",
+    "./css/dialog.css": "./src/css/dialog.css"
   },
   "files": [
     "LICENSE",
