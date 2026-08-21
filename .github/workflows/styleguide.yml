@@ -1,0 +1,64 @@
+# Publicerar styleguiden på GitHub Pages.
+#
+# Sidan hamnar på https://momenty-se.github.io/momenty-ui/ och byggs om vid
+# varje push till main. Gratis så länge repot är publikt — Pages från ett
+# privat repo kräver betalplan.
+#
+# `npm run check` körs FÖRE bygget med flit. Går den inte igenom ska en
+# trasig styleguide inte publiceras: hela poängen med sidan är att den visar
+# hur paketet faktiskt ser ut, och en sida som byggts från en kodbas med
+# odefinierade tokens visar något annat.
+
+name: Styleguide
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# En publicering i taget. Köade körningar avbryts INTE — en push som hunnit
+# börja ska få göra klart, annars kan en snabb följd av commits lämna sidan
+# på en äldre version än main.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Kontroller
+        run: npm run check
+
+      - name: Bygg styleguiden
+        run: npm run styleguide:build
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: styleguide/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
