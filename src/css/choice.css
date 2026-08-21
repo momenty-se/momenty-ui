@@ -1,0 +1,313 @@
+/* Val och märken — Flow 2026 §06, §07.
+ *
+ * STATUS HAR INGEN BEHÅLLARE. En status går inte att trycka på och ska inte se
+ * ut som en knapp. Kvar blir en prick och ett ord. Badge bar åtta varianter
+ * och användes en gång, medan sjutton statusmärken var handrullade — och det
+ * är precis vad som händer när rollen är fel: komponenten passar ingen, så
+ * alla bygger sin egen.
+ *
+ * Chippet däremot ÄR tryckbart. Det är ett filter, och det bär glasets yta.
+ */
+
+/* --- Statusmärket ------------------------------------------------------ */
+.mo-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.mo-status::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: var(--mo-radius-pill);
+  flex: none;
+}
+
+/* Klart. Jade, och pricken bär färgen — inte texten ensam. */
+.mo-status--done {
+  color: var(--mo-accent-text);
+}
+.mo-status--done::before {
+  background: var(--mo-good-fill);
+}
+
+/* Väntar på dig. Gult är det som kräver något av användaren. */
+.mo-status--pending {
+  color: var(--mo-warn-text);
+}
+.mo-status--pending::before {
+  background: var(--mo-warn);
+}
+
+/* Utkast och arkiverad har ingen prick: ingenting väntar, ingenting är klart.
+   Att ge dem en färgprick hade sagt att de betyder något de inte betyder. */
+.mo-status--draft {
+  color: var(--mo-text-muted);
+}
+.mo-status--draft::before {
+  display: none;
+}
+
+.mo-status--archived {
+  color: var(--mo-text-faint);
+}
+.mo-status--archived::before {
+  display: none;
+}
+
+/* I lägesraden på Hem bär texten 17 px, och då växer både pricken och luften
+   omkring den. */
+.mo-status--large {
+  gap: 10px;
+  font-size: 17px;
+  font-weight: 400;
+}
+
+.mo-status--large::before {
+  width: 9px;
+  height: 9px;
+}
+
+/* --- Chippet: filter och statiska taggar -------------------------------
+   Tomt tills det är valt. Ett chip som alltid bär fyllning säger att allt är
+   valt, och då säger ingenting någonting. */
+.mo-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--mo-control-h-compact);
+  padding: 0 16px;
+  border: 1px solid var(--mo-line-strong);
+  border-radius: var(--mo-radius-pill);
+  background: none;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--mo-text-muted);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background var(--mo-motion-fast) ease,
+    border-color var(--mo-motion-fast) ease,
+    color var(--mo-motion-fast) ease;
+}
+
+/* Chippets 44 px under 640 px bor i touch-blocket sist i button.css,
+   tillsammans med varje annan tryckbar roll. Ett mått per klass var precis
+   det som gjorde att .flow-pill aldrig fick regeln. */
+
+.mo-chip:hover:not(:disabled) {
+  background: var(--mo-glass-hover);
+  color: var(--mo-text);
+}
+
+.mo-chip[aria-pressed="true"],
+.mo-chip--selected {
+  background: var(--mo-good-subtle);
+  border-color: var(--mo-good-fill);
+  color: var(--mo-accent-text);
+}
+
+.mo-chip:disabled {
+  cursor: not-allowed;
+  color: var(--mo-text-faint);
+}
+
+/* Räknaren inuti ett chip eller ett växelalternativ. */
+.mo-chip-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: var(--mo-radius-pill);
+  background: var(--mo-warn-subtle);
+  color: var(--mo-warn-text);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* --- Kryssrutan: flerval och samtycke ---------------------------------
+   Reserverad för just det. Ett enskilt av/på är en växel, inte en kryssruta —
+   växeln visar båda lägena, kryssrutan bara ett. */
+.mo-checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 0;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mo-checkbox {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--mo-glass-line);
+  border-radius: 7px;
+  background: var(--mo-glass-bg);
+  color: transparent;
+  backdrop-filter: var(--mo-glass-blur);
+  -webkit-backdrop-filter: var(--mo-glass-blur);
+  transition:
+    background var(--mo-motion-fast) ease,
+    border-color var(--mo-motion-fast) ease;
+}
+
+.mo-checkbox-row[aria-checked="true"] .mo-checkbox,
+.mo-checkbox--on {
+  background: var(--mo-accent);
+  border-color: var(--mo-accent);
+  color: var(--mo-text-on-accent);
+}
+
+.mo-checkbox-label {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--mo-text-muted);
+}
+
+/* --- Valkortet --------------------------------------------------------
+   Låg byte-identiskt i fyra flödesfiler: TransferFlow, CorrectionEntryFlow,
+   OpeningBalanceFlow och CreditNoteFlow. Diff gav noll skillnader. */
+.mo-choice-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  padding: 16px 18px;
+  border: 1px solid var(--mo-line-strong);
+  border-radius: var(--mo-radius-row);
+  background: var(--mo-glass-faint);
+  text-align: left;
+  cursor: pointer;
+  backdrop-filter: var(--mo-glass-faint-blur);
+  -webkit-backdrop-filter: var(--mo-glass-faint-blur);
+  transition:
+    background var(--mo-motion-fast) ease,
+    border-color var(--mo-motion-fast) ease;
+}
+
+.mo-choice-card:hover:not(:disabled) {
+  background: var(--mo-glass-bg);
+}
+
+.mo-choice-card[aria-pressed="true"],
+.mo-choice-card--selected {
+  background: var(--mo-accent-subtle);
+  border-color: var(--mo-accent);
+}
+
+.mo-choice-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.mo-choice-card-check {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--mo-radius-pill);
+  background: var(--mo-accent);
+  color: var(--mo-text-on-accent);
+  opacity: 0;
+  transition: opacity var(--mo-motion-fast) ease;
+}
+
+.mo-choice-card[aria-pressed="true"] .mo-choice-card-check,
+.mo-choice-card--selected .mo-choice-card-check {
+  opacity: 1;
+}
+
+.mo-choice-card-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--mo-text);
+}
+
+.mo-choice-card-description {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--mo-text-faint);
+}
+
+/* --- Växeln: ett av/på som visar båda lägena --------------------------
+   Skillnaden mot kryssrutan är vad man ser när inget är valt. En tom
+   kryssruta ser ut som något ogjort; en växel i frånläge ser ut som ett
+   beslut. Därför bär notisinställningar växlar och samtycke kryssrutor.
+
+   Spåret är 44 × 26 — knappens bredd, men inte dess höjd, eftersom hela
+   raden runt växeln är träffytan (se .flow-lankrad som button). */
+.mo-toggle {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  width: 44px;
+  height: 26px;
+  border: 1px solid var(--mo-line-strong);
+  border-radius: var(--mo-radius-pill);
+  background: var(--mo-glass-faint);
+  transition:
+    background var(--mo-motion-fast) ease,
+    border-color var(--mo-motion-fast) ease;
+}
+
+.mo-toggle::after {
+  content: "";
+  position: absolute;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--mo-radius-pill);
+  background: var(--mo-bg);
+  box-shadow: 0 2px 6px -2px rgba(80, 60, 20, 0.45);
+  transition: transform var(--mo-motion-fast) cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[aria-checked="true"] > .mo-toggle,
+.mo-toggle--on {
+  background: var(--mo-accent);
+  border-color: var(--mo-accent);
+}
+
+[aria-checked="true"] > .mo-toggle::after,
+.mo-toggle--on::after {
+  transform: translateX(18px);
+}
+
+/* Frånläget i mörkt läge: papperet är då mörkt, och en mörk knapp på en mörk
+   yta försvinner. Knappen behåller sin ljusa ton och blir kontrasten. */
+.dark .mo-toggle::after {
+  background: var(--mo-text-faint);
+}
+
+.dark [aria-checked="true"] > .mo-toggle::after,
+.dark .mo-toggle--on::after {
+  background: var(--mo-bg);
+}
+
+/* Innehållet i en valrad som inte har titel och beskrivning, utan bara text.
+   `display: block` och `flex: 1` låg som Tailwind-utilities på anropsstället
+   och gjorde därför ingenting i en app utan Tailwind. */
+.mo-choice-card-body {
+  display: block;
+  flex: 1;
+  min-width: 0;
+}

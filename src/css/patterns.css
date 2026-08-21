@@ -64,3 +64,48 @@
     flex-wrap: wrap;
   }
 }
+
+/* --- Felgränsen --------------------------------------------------------
+   Det som står kvar när en del av sidan inte kom fram. Medvetet lågmäld: den
+   ska inte se ut som ett larm, eftersom resten av sidan fungerar och
+   ingenting användaren gjort har gått förlorat. */
+.mo-error-boundary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 64px 16px;
+  text-align: center;
+}
+
+.mo-error-boundary-text {
+  max-width: 42ch;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mo-text-faint);
+}
+
+.mo-error-boundary-retry {
+  border: 0;
+  background: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--mo-good-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  transition: opacity var(--mo-motion-fast) ease;
+}
+
+.mo-error-boundary-retry:hover {
+  opacity: 0.7;
+}
+
+.mo-error-boundary-retry:focus-visible {
+  outline: 2px solid var(--mo-focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--mo-radius-sm);
+}

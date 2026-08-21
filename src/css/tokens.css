@@ -98,6 +98,51 @@
   --mo-menu-bg: rgba(255, 255, 255, 0.9); /* flow-glass-menu */
   --mo-shadow-panel: 0 40px 80px -44px rgba(80, 60, 20, 0.5);
 
+  /* ── Glas, fler nivåer ──────────────────────────────────────────────
+     `subtle` (0,78) ligger över `faint` (0,64) i täthet — samma ordning som
+     texten har mellan `muted` och `faint`. Chip, Badge och växelns spår bär
+     subtle; valkortet och växeln i viloläge bär faint. */
+  --mo-glass-subtle: rgba(255, 255, 255, 0.78);
+  --mo-glass-subtle-line: rgba(255, 255, 255, 0.88);
+  --mo-glass-faint: rgba(255, 255, 255, 0.64);
+  --mo-glass-faint-blur: blur(20px);
+
+  /* Kortets yta. Egen token och inte `bg-raised`: kortet är glas, inte matt. */
+  --mo-card-bg: rgba(255, 255, 255, 0.74);
+  --mo-card-line: rgba(255, 255, 255, 0.84);
+
+  /* Fylld statusfärg. Identisk med --mo-accent i dag, och det är avsiktligt
+     att den ändå är egen: en app som byter accentfärg ska inte råka byta
+     färgen på "klart". Skriv aldrig om den till var(--mo-accent). */
+  --mo-good-fill: #00c9a0;
+
+  /* Text i accentfärg. Pixelidentisk med --mo-good-text och --mo-focus-ring,
+     av samma skäl som ovan — tre roller som råkar dela värde i det här
+     varumärket, inte tre namn på en sak. */
+  --mo-accent-text: #00705a;
+
+  /* Assistentens rosa. Enda stället i systemet där en ton bär identitet i
+     stället för status. */
+  --mo-assistant-subtle: rgba(240, 169, 174, 0.22);
+
+  /* Skelettets puls medan innehållet laddas. */
+  --mo-skeleton-bg: rgba(24, 20, 16, 0.09);
+
+  /* Knoppen som glider i en växel eller ett piller. */
+  --mo-control-knob: #faf8f5;
+  --mo-shadow-knob: 0 2px 6px -2px rgba(80, 60, 20, 0.45);
+  --mo-shadow-raised: 0 1px 2px rgba(80, 60, 20, 0.06);
+
+  /* Kompakt kontrollhöjd — chip, tabellceller, täta rutnät. Det enda
+     medvetna undantaget från --mo-control-h, och bara över 640 px: under
+     den bredden växer de tillbaka till fingerspetsens mått. */
+  --mo-control-h-compact: 34px;
+  --mo-switch-h: 41px;
+  --mo-radius-row: 18px;
+
+  /* Den utsvängande kurvan. Låg hårdkodad på tre ställen i Flow. */
+  --mo-ease: cubic-bezier(0.16, 1, 0.3, 1);
+
   /* ── Överlägg ───────────────────────────────────────────────────────
      Två styrkor, och skillnaden är avsiktlig. Dialogens dämpning är svag,
      eftersom bakom den står ofta ett kvitto eller en tabell som användaren
@@ -198,6 +243,17 @@
     --mo-glass-raised: rgba(255, 255, 255, 0.2);
     --mo-shadow-panel: 0 40px 80px -44px rgba(0, 0, 0, 0.85);
 
+    --mo-glass-subtle: rgba(255, 255, 255, 0.12);
+    --mo-glass-subtle-line: rgba(255, 255, 255, 0.18);
+    --mo-glass-faint: rgba(22, 20, 17, 0.48);
+    --mo-card-bg: rgba(24, 21, 18, 0.58);
+    --mo-card-line: rgba(255, 255, 255, 0.14);
+    --mo-accent-text: #4bd6a4;
+    --mo-skeleton-bg: rgba(242, 239, 232, 0.1);
+    --mo-control-knob: #a79d8e;
+    --mo-shadow-knob: 0 2px 6px -2px rgba(0, 0, 0, 0.5);
+    --mo-shadow-raised: 0 1px 2px rgba(0, 0, 0, 0.3);
+
     --mo-focus-ring: #4bd6a4;
 
     --mo-shadow-sm: 0 18px 40px -24px rgba(0, 0, 0, 0.6);
@@ -244,6 +300,17 @@
   --mo-menu-bg: rgba(30, 27, 23, 0.94);
   --mo-glass-raised: rgba(255, 255, 255, 0.2);
   --mo-shadow-panel: 0 40px 80px -44px rgba(0, 0, 0, 0.85);
+
+  --mo-glass-subtle: rgba(255, 255, 255, 0.12);
+  --mo-glass-subtle-line: rgba(255, 255, 255, 0.18);
+  --mo-glass-faint: rgba(22, 20, 17, 0.48);
+  --mo-card-bg: rgba(24, 21, 18, 0.58);
+  --mo-card-line: rgba(255, 255, 255, 0.14);
+  --mo-accent-text: #4bd6a4;
+  --mo-skeleton-bg: rgba(242, 239, 232, 0.1);
+  --mo-control-knob: #a79d8e;
+  --mo-shadow-knob: 0 2px 6px -2px rgba(0, 0, 0, 0.5);
+  --mo-shadow-raised: 0 1px 2px rgba(0, 0, 0, 0.3);
 
   --mo-focus-ring: #4bd6a4;
 
