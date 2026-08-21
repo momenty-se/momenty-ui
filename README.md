@@ -13,7 +13,7 @@ för som klickbar adress.
 ## Koppla in
 
 ```bash
-npm install github:momenty-se/momenty-ui#v0.3.0
+npm install github:momenty-se/momenty-ui#v0.5.0
 ```
 
 Paketet distribueras som TypeScript-källkod, inte förbyggt. Next.js behöver
@@ -143,4 +143,4 @@ som når slutanvändaren är också svensk, eftersom produkterna är det.
   när två appar byggt samma sak är det en kandidat för paketet.
 - Undantag skrivs genom att sätta om en token, inte genom en ny variant — då
   syns undantaget i tokenlistan i stället för att gömma sig i CSS:en.
-- `npx tsc --noEmit` innan commit.
+- `npm run check` innan commit — den kör båda typkontrollerna och CSS-spärren.
