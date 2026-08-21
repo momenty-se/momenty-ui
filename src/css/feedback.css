@@ -1,0 +1,175 @@
+/* Återkoppling — @momenty/ui.
+ *
+ * Banderollen och märket. Härstammar ur momenty-flows
+ * `src/styles/flow/aterkoppling.css`, generaliserad till kontraktets `--mo-*`.
+ * Laddas efter `@tailwind utilities`.
+ *
+ * ORIGINALETS INLEDNING:
+ * Återkoppling — Flow 2026 §26.
+ *
+ * Banderollen: en rad som säger vad som hände och vad man kan göra åt det.
+ * Aldrig bara att något gick fel.
+ *
+ * HÄR LÅG OCKSÅ TOASTEN OCH TOMT LÄGE. Båda var byggda, dokumenterade och
+ * underhållna — och båda hade noll anropsställen i appen. De togs bort
+ * 2026-08-20 tillsammans med `ui/Toast.tsx` och `ui/EmptyState.tsx`.
+ *
+ * Regeln för tomt läge står kvar i DESIGNSYSTEM.md §4 "Tillstånd": tomt
+ * betyder "inget att göra", inte "något saknas". Bygg mot den, inte ur den
+ * här filens historik. Toasten har ingen egen paragraf — och den kräver att
+ * en provider läggs i dashboardens layout, vilket var skälet till att den
+ * aldrig kom i bruk.
+ */
+
+/* --- Banderollen ------------------------------------------------------
+   Fem egna byggen blev en roll: en rad, en ton, högst en handling.
+   Glas informerar, gult väntar på dig, jade bekräftar. Bara den informerande
+   går att stänga — det som väntar försvinner när det är gjort, inte när man
+   klickar bort det. */
+.mo-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--mo-card-line);
+  border-radius: var(--mo-radius-row);
+  background: var(--mo-card-bg);
+  backdrop-filter: var(--mo-glass-blur);
+  -webkit-backdrop-filter: var(--mo-glass-blur);
+}
+
+.mo-banner-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--mo-text);
+}
+
+.mo-banner-sub {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--mo-text-faint);
+}
+
+/* Gult väntar på dig. Hela raden i gult, precis som jade-varianten är hel —
+   en gul yta med bläcksvart text läser som en varning om texten, inte som en
+   uppmaning i texten. */
+.mo-banner--pending {
+  background: var(--mo-warn-subtle);
+  border-color: var(--mo-warn-subtle);
+}
+
+.mo-banner--pending .mo-banner-text {
+  color: var(--mo-warn-text);
+}
+
+/* Jade bekräftar. Måtten är prototypens: jade-tonen som yta, accenten på
+   35 % som linje, och HELA raden i jade-mörkt — inte bläck med en jade-detalj.
+   Den är också systemets enda banderoll som växer till 16/20 i padding, för
+   att den står ensam sist på en sida och inte i en stapel. */
+.mo-banner--done {
+  padding: 16px 20px;
+  background: var(--mo-good-subtle);
+  border-color: color-mix(in srgb, var(--mo-good-fill) 35%, transparent);
+}
+
+.mo-banner--done .mo-banner-text {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--mo-accent-text);
+}
+
+/* Emfas i banderollen är vikt 500, aldrig fetstil — samma regel som i resten
+   av systemet. */
+.mo-banner-text strong,
+.mo-banner-text b,
+.mo-banner-text a {
+  font-weight: 500;
+  color: inherit;
+}
+
+/* Räknaren i den gula: "6" dagar kvar. Talet är hela beskedet. */
+.mo-banner-count {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--mo-radius-pill);
+  background: color-mix(in srgb, var(--mo-warn) 16%, transparent);
+  color: var(--mo-warn-text);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* --- Märket ------------------------------------------------------------
+   Glaspiller. Färg används bara där den betyder något: jade för klart, gult
+   för det som väntar på dig. ALDRIG RÖTT — ett märke är en status, och rött
+   bär bara handlingar som inte går att ångra. Därför pekar `error` på samma
+   gula yta som `warning`; det är inte ett misstag utan hela regeln.
+
+   Låg tidigare som Tailwind-klasser i TSX:en och gjorde alltså ingenting i en
+   app utan Tailwind. */
+.mo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--mo-radius-pill);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.3;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  transition: background var(--mo-motion-fast) ease, color var(--mo-motion-fast) ease;
+}
+
+.mo-badge--success,
+.mo-badge--primary {
+  background: var(--mo-good-subtle);
+  border-color: var(--mo-good-subtle);
+  color: var(--mo-good-text);
+}
+
+.mo-badge--warning,
+.mo-badge--error {
+  background: var(--mo-warn-subtle);
+  border-color: color-mix(in srgb, var(--mo-warn) 18%, transparent);
+  color: var(--mo-warn-text);
+}
+
+.mo-badge--info {
+  background: var(--mo-glass-subtle);
+  border-color: var(--mo-glass-subtle-line);
+  color: var(--mo-text-muted);
+}
+
+.mo-badge--muted {
+  background: var(--mo-glass-subtle);
+  border-color: var(--mo-glass-subtle-line);
+  color: var(--mo-text-faint);
+}
+
+/* Assistentens rosa — enda stället där en ton bär identitet i stället för
+   status. */
+.mo-badge--ai {
+  background: var(--mo-assistant-subtle);
+  border-color: var(--mo-glass-subtle-line);
+  color: var(--mo-text-muted);
+}
+
+.mo-badge--outline {
+  background: transparent;
+  border-color: var(--mo-glass-subtle-line);
+  color: var(--mo-text-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mo-badge {
+    transition: none;
+  }
+}

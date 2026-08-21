@@ -24,7 +24,9 @@
     "./css/dialog.css": "./src/css/dialog.css",
     "./css/patterns.css": "./src/css/patterns.css",
     "./css/choice.css": "./src/css/choice.css",
-    "./css/switch.css": "./src/css/switch.css"
+    "./css/switch.css": "./src/css/switch.css",
+    "./css/typography.css": "./src/css/typography.css",
+    "./css/feedback.css": "./src/css/feedback.css"
   },
   "files": [
     "LICENSE",

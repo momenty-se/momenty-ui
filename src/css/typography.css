@@ -1,0 +1,210 @@
+/* Typografin — Flow 2026 §02.
+ *
+ * TOLV RADER BÄR HELA APPEN. Serif över 26 px, sans under, siffror alltid
+ * sans. Ingen storlek skrivs på anropsstället.
+ *
+ * Skalan ersätter tre lager som beskrev samma roller olika: .flow-title och
+ * .flow-amount, .typography-* (varav två klasser hade noll användningar) och
+ * handskriven Tailwind.
+ *
+ * Tre regler blir strukturellt uppfyllda i stället för förbjudna:
+ *
+ * - SERIF ALDRIG UNDER 26 PX. Bara tre roller sätter serif, och den minsta av
+ *   dem har golvet 26 i sin clamp. Kombinationen serif + liten går inte att
+ *   uttrycka så länge ingen sätter en egen storlek.
+ * - INGET BELOPP BÄR VIKT. Beloppsrollerna neutraliserar b och strong inuti
+ *   sig, så en fetstil som råkar hamna där gör ingenting.
+ * - SIFFROR ÄR ALLTID SANS. Ingen av de tolv rollerna sätter mono. Mono bär
+ *   tal man läser tecken för tecken och har egna klasser längst ned.
+ */
+
+/* --- Rubriker: serif, vikt 400, aldrig fetstil -------------------------
+   Tyngden kommer från storleken och serifen, inte från vikten. Instrument
+   Serif finns bara i 400, och font-synthesis är avstängt i globals.css just
+   för att en falsk fetstil inte ska uppstå. */
+.mo-t-display,
+.mo-t-page-title,
+.mo-t-section-title {
+  font-family: var(--mo-font-serif);
+  font-weight: 400;
+  color: var(--mo-text);
+  margin: 0;
+  text-wrap: balance;
+}
+
+.mo-t-display {
+  font-size: clamp(44px, 7vw, 86px);
+  line-height: 1;
+  letter-spacing: -0.026em;
+}
+
+.mo-t-page-title {
+  font-size: 40px;
+  line-height: 1;
+  letter-spacing: -0.022em;
+}
+
+.mo-t-section-title {
+  /* Golvet är 26 — serifgränsen. Taket 34 så att den aldrig konkurrerar med
+     sidrubrikens 40. */
+  font-size: clamp(26px, 3.2vw, 34px);
+  line-height: 1.06;
+  letter-spacing: -0.022em;
+}
+
+/* Emfas i en rubrik är kursiv serif, ett led per rubrik, i samma färg. */
+.mo-t-display em,
+.mo-t-page-title em,
+.mo-t-section-title em {
+  font-style: italic;
+  color: inherit;
+}
+
+/* --- Rubriker: sans ---------------------------------------------------- */
+.mo-t-subtitle {
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.012em;
+  color: var(--mo-text);
+  margin: 0;
+}
+
+/* Appens vanligaste rubrik. */
+.mo-t-card-title {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: -0.006em;
+  color: var(--mo-text);
+  margin: 0;
+}
+
+/* --- Text -------------------------------------------------------------- */
+.mo-t-body {
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--mo-text-muted);
+  margin: 0;
+  max-width: 62ch;
+  text-wrap: pretty;
+}
+
+/* Metadata och hjälptext. --mo-text-faint klarar 4,58:1 mot papper — knappt över
+   AA, och det är skälet till att den inte får dämpas ytterligare. */
+.mo-t-meta {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--mo-text-faint);
+  margin: 0;
+}
+
+/* Granskningsläget: huvudbok, råbalans, kontoplan, SIE. Tätare radhöjd, men
+   ingen egen skala — samma 13 px som metadata, i lästextens färg. */
+.mo-t-review {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--mo-text-muted);
+  font-variant-numeric: tabular-nums lining-nums;
+  margin: 0;
+}
+
+/* ÖGONBRYNET ÄR ETT STÄLLE, INTE FEM. Samma elva pixlar stod skrivna i fem
+   klasser i momenty-flow — flow-t-etikett, flow-eyebrow, typography-eyebrow,
+   kicker och flow-field-etikett. Här är de ett namn plus en modifierare, och
+   den dag någon ändrar spärren från .22em ändras den på ett ställe.
+
+   SKILJ EYEBROW FRÅN LABEL. Båda hette `etikett` i Flow, och det är samma
+   dubbeltydighet som redan sänkt en översättning här. `.mo-label` i field.css
+   är ett FÄLTS etikett — den står ovanför sin kontroll och beskriver vad man
+   fyller i. `.mo-t-eyebrow` är den versala texten ovanför en RUBRIK. Slå inte
+   ihop dem för att de råkar dela typsnitt. */
+.mo-t-eyebrow,
+.mo-t-eyebrow--block {
+  font-family: var(--mo-font-sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--mo-text-faint);
+  margin: 0;
+}
+
+/* Det enda som skiljer dem är vad de sitter på: fältets etikett är ett eget
+   block ovanför sin kontroll, de fyra andra står i flödet. */
+.mo-t-eyebrow--block {
+  display: block;
+}
+
+/* --- Belopp -----------------------------------------------------------
+   ALDRIG FETSTIL. En summarad skiljs med storlek och linje. Fetstil på ett
+   tal läser som betoning av siffran, inte av raden — och i en bokföring är
+   det alltid raden som betyder något. */
+.mo-t-amount,
+.mo-t-total,
+.mo-t-figure {
+  font-family: inherit;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums lining-nums;
+  color: var(--mo-text);
+  margin: 0;
+}
+
+.mo-t-amount b,
+.mo-t-amount strong,
+.mo-t-total b,
+.mo-t-total strong,
+.mo-t-figure b,
+.mo-t-figure strong {
+  font-weight: inherit;
+}
+
+.mo-t-amount {
+  font-size: 15px;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+.mo-t-total {
+  font-size: 26px;
+  line-height: 1;
+  letter-spacing: -0.012em;
+}
+
+/* Sidans ENDA huvudtal. Två huvudtal på samma sida betyder att ingetdera är
+   huvudtalet. */
+.mo-t-figure {
+  font-size: clamp(30px, 4.5vw, 44px);
+  line-height: 1;
+  letter-spacing: -0.014em;
+}
+
+/* Negativa tal bär tecknet, aldrig färgen. Ett minustecken är inte ett fel —
+   rörelsens kostnader ska stå i samma färg som intäkterna. */
+.mo-t-amount--negative,
+.mo-t-total--negative {
+  color: var(--mo-text);
+}
+
+/* --- Mono -------------------------------------------------------------
+   Tal man läser TECKEN FÖR TECKEN, inte summerar: verifikationsnummer,
+   INK2-blankettens fältnummer, kontonummer i väljaren, stegräknaren.
+   Aldrig kronor — ett belopp är sans med tabular-nums.
+   Fira Code laddas i layout.tsx; fram till dess pekade font-mono på ett
+   typsnitt som aldrig hämtades, så 117 ställen fick systemets terminalfont. */
+.mo-t-number {
+  font-family: var(--mo-font-mono);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--mo-text-muted);
+  font-variant-numeric: lining-nums;
+}
+
+.mo-t-number--small {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}

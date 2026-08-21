@@ -13,6 +13,8 @@
  * Se README.md för inkoppling och docs/TOKENS.md för namnsättningen.
  */
 
+export { Badge, type BadgeProps, type BadgeVariant } from "./components/Badge";
+export { Banner, type BannerProps } from "./components/Banner";
 export { Button, type ButtonProps, type ButtonVariant } from "./components/Button";
 export { Checkbox, type CheckboxProps } from "./components/Checkbox";
 export { ChoiceCard, type ChoiceCardProps } from "./components/ChoiceCard";
@@ -34,5 +36,6 @@ export { Select, type SelectProps } from "./components/Select";
 export { SelectRow, type SelectRowProps } from "./components/SelectRow";
 export { Skeleton, type SkeletonProps } from "./components/Skeleton";
 export { StatusMark, type StatusMarkProps, type StatusKind } from "./components/StatusMark";
+export { Text, type TextProps, type TextVariant } from "./components/Text";
 export { Textarea, type TextareaProps } from "./components/Textarea";
 export { Toggle } from "./components/Toggle";
