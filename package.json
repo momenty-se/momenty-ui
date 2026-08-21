@@ -23,7 +23,8 @@
     "./css/picker.css": "./src/css/picker.css",
     "./css/dialog.css": "./src/css/dialog.css",
     "./css/patterns.css": "./src/css/patterns.css",
-    "./css/choice.css": "./src/css/choice.css"
+    "./css/choice.css": "./src/css/choice.css",
+    "./css/switch.css": "./src/css/switch.css"
   },
   "files": [
     "LICENSE",

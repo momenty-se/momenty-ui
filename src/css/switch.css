@@ -1,0 +1,258 @@
+/* Segmentväxeln och skelettet — @momenty/ui.
+ *
+ * Härstammar ur momenty-flows `src/app/globals.css`, där de låg utspridda
+ * bland allt annat. Generaliserad till kontraktets `--mo-*`. Laddas efter
+ * `@tailwind utilities`, se css/button.css.
+ */
+
+/* En segmenterad växel (två eller fler lägen) — samma track-i-track-mönster
+   som appens navigering, men i pillformat. Omslaget bär glaset och
+   kanten, alternativen är osynliga tills de är valda. Det gör läget till EN
+   yta med en flyttande markering, i stället för separata knappar som råkar
+   stå bredvid varandra. Komponenten: src/components/ui/PillSwitch.tsx. */
+.mo-switch {
+  display: inline-flex;
+  position: relative;
+  gap: 2px;
+  padding: 4px;
+  background: var(--mo-glass-subtle);
+  border: 1px solid var(--mo-glass-subtle-line);
+  border-radius: var(--mo-radius-pill);
+  /* ALDRIG BREDARE ÄN SINA ALTERNATIV. `inline-flex` räcker inte: ett flex-
+     eller grid-barn blockifieras, och `align-items: stretch` drar då ut spåret
+     över hela behållaren — ett halvtomt glaspiller tvärs över sidan. Samma sak
+     hände i `--wrap`, som måste vara `display: flex` för att kunna bryta rad
+     alls. `fit-content` löser båda: bredden blir innehållets så länge det får
+     plats, och den tillgängliga först när det inte gör det (vilket är precis
+     när `--wrap` ska bryta). `--full` sätter `width: 100%` längre ned och
+     vinner på källordning — den bredden är avsiktlig. */
+  width: fit-content;
+}
+
+/* VÄXELNS HÖJD, SOM ETT MÅTT ANDRA KAN STÄLLA SIG EFTER.
+   Räknat: 4+4 px spårpadding + 1+1 px kant + alternativets 7+7 px och en
+   13 px-rads höjd. Under `sm` växer alternativets padding till 11 px för
+   tummen, och måttet med den. */
+:root {
+  --mo-switch-h: 41px;
+}
+
+@media (max-width: 639px) {
+  :root {
+    --mo-switch-h: 49px;
+  }
+}
+
+/* En rad där en PillSwitch står bredvid ett sökfält och ett piller. De tre
+   var 41, 56 och 44 px höga — tre höjder på samma rad läser som tre olika
+   sorters kontroll, och ögat hittar ingen baslinje. Växeln sätter måttet
+   eftersom den är den enda av dem vars höjd bär mening (spår + markering).
+   Klassen läggs på RADEN, inte på kontrollerna: ett sökfält på egen rad ska
+   fortfarande vara ett fullstort sökfält. */
+.mo-switch-row > .mo-field,
+.mo-switch-row > .mo-chip {
+  height: var(--mo-switch-h);
+  min-height: var(--mo-switch-h);
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.mo-switch-row > .mo-field > input {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* 14 px först från 640 px. Regeln har högre specificitet än field.css
+   16 px-golv (0-2-1 mot 0-1-1) och stängde därför av iOS-skyddet just i
+   sökfältet — det fält man trycker i oftast. Under 16 px zoomar iOS Safari
+   in vid fokus och zoomar aldrig ut igen. Höjdlogiken ovan står kvar på
+   alla bredder; det är bara typografin som är ett skrivbordsmått. */
+@media (min-width: 640px) {
+  .mo-switch-row > .mo-field > input {
+    font-size: 14px;
+  }
+}
+
+/* Filterrader som ska ta hela behållarens bredd i stället för att krympa
+   till textens bredd — alternativen delar då spåret jämnt. */
+.mo-switch--full {
+  display: flex;
+  width: 100%;
+}
+
+.mo-switch--full .mo-switch-option {
+  flex: 1;
+  text-align: center;
+}
+
+/* Längre listor (5+ alternativ, långa etiketter) som inte får plats på en
+   rad — spåret bryter i stället för att svämma över i sidled. display:flex,
+   inte inline-flex: en inline-flex-behållare vidgar sig hellre än att bryta,
+   eftersom den saknar en egen bredd att bryta mot. Bredden kommer från
+   `width: fit-content` på basklassen — utan den fyller den här behållaren
+   hela sidan även när alternativen ryms på en rad.
+
+   999px-radien (samma som .mo-switch) ser rätt ut på EN rad, men blir en
+   konstig avlång kapsel över två-tre rader — hörnen på första och sista
+   raden böjer sig mycket mer än mittraderna, som annars är raka kanter.
+   Ett kortradie i stället: samma språk som kortet, för en yta som nu är
+   en rundad rektangel snarare än ett piller. */
+.mo-switch--wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  border-radius: var(--mo-radius-card-inner);
+}
+
+/* Den flytande markeringen — appens vanliga "vald"-yta (samma som
+   det valda chippet: --mo-glass-raised + skugga), men som ett eget
+   lager under knapparna i stället för varje knapps egen bakgrund. Positionen
+   sätts av komponenten (den mäter vilken knapp som är vald, i två
+   dimensioner — annars hittar den fel rad i en radbrytande växel), CSS:en
+   sköter bara glidningen mellan mätningarna — det är det som ger
+   "vätske"-känslan. */
+.mo-switch-thumb {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: var(--mo-radius-pill);
+  background: var(--mo-glass-raised);
+  box-shadow: var(--mo-shadow-sm);
+  transition:
+    transform 320ms var(--mo-ease),
+    width 320ms var(--mo-ease),
+    height 320ms var(--mo-ease);
+  pointer-events: none;
+  z-index: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mo-switch-thumb {
+    transition: none;
+  }
+}
+
+.mo-switch-option {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: none;
+  padding: 7px 16px;
+  border-radius: var(--mo-radius-pill);
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--mo-text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--mo-motion-fast) ease;
+}
+
+.mo-switch-option[aria-selected="true"] {
+  color: var(--mo-text);
+  font-weight: 600;
+}
+
+/* Under `sm` är pekfingret, inte muspekaren, det som träffar — och 7px
+   padding (~30-32px totalt) är för smalt för det. Samma brytpunkt som
+   mobilens navrad. Gäller alla PillSwitch-instanser, inte
+   bara .mo-switch--wrap: en kompakt rad på desktop får gärna vara
+   kompakt, men på mobil ska den vara lätt att träffa oavsett hur många
+   alternativ den har. */
+@media (max-width: 639px) {
+  .mo-switch-option {
+    padding: 11px 16px;
+  }
+}
+
+/* Prick till vänster om texten på den valda fliken — samma accent som
+   klotet och de fyllda ytorna, den enda accenten i gränssnittet. Finns bara
+   i DOM:en för det valda alternativet (se PillSwitch.tsx), så de ovalda
+   flikarna reserverar aldrig plats för en osynlig prick. */
+.mo-switch-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mo-accent);
+  flex-shrink: 0;
+}
+
+/* Notisbubblan på en knapp — antalet som väntar, i knappens övre högra hörn.
+   Gul av samma skäl som pricken bredvid en post som väntar på dig och räknaren
+   i flikväxeln: accenten säger klart, och skulle här lova motsatsen.
+
+   Kanten är 2 px i sidans egen bakgrund, inte i knappens. Det är den som får
+   bubblan att läsa som en sak OVANPÅ knappen i stället för en del av den —
+   samma knep som notisprickar i iOS och Android. Därför --mo-bg och inte
+   --mo-accent.
+
+   Värden ur design-prototypen (Flow Hem - slutlig). Behållaren måste vara
+   `position: relative`; det sätts på användningsstället, eftersom .mo-btn
+   används på hundra ställen som inte har någon bubbla. */
+.mo-count-bubble {
+  position: absolute;
+  top: -9px;
+  right: -7px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 7px;
+  border-radius: var(--mo-radius-pill);
+  background: var(--mo-warn);
+  border: 2px solid var(--mo-bg);
+  color: var(--mo-text-on-warn);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums lining-nums;
+  box-shadow: var(--mo-shadow-sm);
+  /* Bubblan ligger över knappens träffyta. Utan detta blir hörnet en död zon
+     som ser klickbar ut men inte är det. */
+  pointer-events: none;
+}
+
+/* Räknare efter etiketten — "Frågor 2". Gul, eftersom det är samma signal som
+   pricken bredvid en post som väntar på dig; accenten säger klart och skulle
+   här ha lovat motsatsen. Renderas bara när talet är större än noll (se
+   PillSwitch.tsx), så en tom flik aldrig bär en nolla. */
+.mo-switch-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  margin-left: -2px;
+  border-radius: var(--mo-radius-pill);
+  background: var(--mo-warn-subtle);
+  color: var(--mo-warn-text);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums lining-nums;
+  flex-shrink: 0;
+}
+
+/* Skelett — visar formen, inte en snurra. Samma layout som färdig data. */
+.mo-skeleton {
+  background: var(--mo-skeleton-bg);
+  border-radius: var(--mo-radius-pill);
+  animation: moShimmer 1.6s ease-in-out infinite;
+}
+
+/* Mörkt läge kommer via --mo-skeleton-bg, inte via en egen .dark-selektor:
+   kontraktet äger färgbytet. */
+@keyframes moShimmer {
+  0% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0.5;
+  }
+}

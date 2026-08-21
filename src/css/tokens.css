@@ -68,6 +68,9 @@
   --mo-warn: #d48e00; /* flow-amber */
   --mo-warn-subtle: rgba(212, 142, 0, 0.1);
   --mo-warn-text: #8c6e31;
+  /* Text ovanpå FYLLD --mo-warn, inte på den tonade ytan. Räknarbubblan är
+     enda stället i systemet som fyller med gult. */
+  --mo-text-on-warn: #231d12;
 
   --mo-bad: #b8302a; /* flow-error */
   --mo-bad-subtle: rgba(184, 48, 42, 0.1);
@@ -227,6 +230,8 @@
     --mo-warn: #e2b877; /* flow-amber mörk */
     --mo-warn-subtle: rgba(226, 184, 119, 0.12);
     --mo-warn-text: #e2b877;
+  --mo-text-on-warn: #231d12;
+    --mo-text-on-warn: #231d12;
 
     --mo-bad: #ff6b5f; /* flow-error mörk */
     --mo-bad-subtle: rgba(255, 107, 95, 0.14);
@@ -285,6 +290,7 @@
   --mo-warn: #e2b877;
   --mo-warn-subtle: rgba(226, 184, 119, 0.12);
   --mo-warn-text: #e2b877;
+  --mo-text-on-warn: #231d12;
 
   --mo-bad: #ff6b5f;
   --mo-bad-subtle: rgba(255, 107, 95, 0.14);

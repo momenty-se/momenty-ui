@@ -28,9 +28,11 @@ export { Icon, iconStroke, ICON_LABELS, ICON_GROUPS, type IconName } from "./com
 export { Input, type InputProps, type InputKind } from "./components/Input";
 export { Lightbox, type LightboxProps } from "./components/Lightbox";
 export { Menu, type MenuProps } from "./components/Menu";
+export { PillSwitch, type PillSwitchProps } from "./components/PillSwitch";
 export { Popover, type PopoverProps } from "./components/Popover";
 export { Select, type SelectProps } from "./components/Select";
 export { SelectRow, type SelectRowProps } from "./components/SelectRow";
+export { Skeleton, type SkeletonProps } from "./components/Skeleton";
 export { StatusMark, type StatusMarkProps, type StatusKind } from "./components/StatusMark";
 export { Textarea, type TextareaProps } from "./components/Textarea";
 export { Toggle } from "./components/Toggle";
